@@ -43,15 +43,18 @@ public class MongoToMysql {
     static MongoToMysql mysql = new MongoToMysql();
     
 	//ini file
-    static Properties p = new Properties();
+    static Properties CloudToMongoIni = new Properties();
+    static Properties MongoToMysqlIni = new Properties();
 	
 	public MongoToMysql() {
 		mysql_database_password = "";
 		mysql_database_user = "root";
 		mysql_database_connection = "jdbc:mysql://localhost/museu";
+		loadIniFiles();
 	}
+	
 	public static void main(String[] args) {
-		loadIni();
+		loadCloudToMongoIni();
 	    new MongoToMysql().connectToMongo();
 	    new MongoToMysql().connectToMysql();
 	    new SepararMedicoes(mongocol).start();
@@ -115,17 +118,20 @@ public class MongoToMysql {
         return date;
    }
 	
+	
+	
+	public static void loadMongoToMysqlIni() {
+		
+	}
 
-	public static void loadIni() {
+	public static void loadCloudToMongoIni() {
     	try {
-            p = getIniFile();
-            
-            cloud_server = p.getProperty("cloud_server");
-            cloud_topic = p.getProperty("cloud_topic");
-            mongo_host = p.getProperty("mongo_host");
-            mongo_database = p.getProperty("mongo_database");
-            mongo_collection_invalidas = p.getProperty("mongo_collection_invalidas");
-            mongo_collection_sensor = p.getProperty("mongo_collection_sensor");
+            cloud_server = CloudToMongoIni.getProperty("cloud_server");
+            cloud_topic = CloudToMongoIni.getProperty("cloud_topic");
+            mongo_host = CloudToMongoIni.getProperty("mongo_host");
+            mongo_database = CloudToMongoIni.getProperty("mongo_database");
+            mongo_collection_invalidas = CloudToMongoIni.getProperty("mongo_collection_invalidas");
+            mongo_collection_sensor = CloudToMongoIni.getProperty("mongo_collection_sensor");
         } catch (Exception e) {
 
             System.out.println("Error reading CloudToMongo.ini file " + e);
@@ -133,17 +139,18 @@ public class MongoToMysql {
         }
     }
 	
-	public static Properties getIniFile() {
-    	Properties p = new Properties();
+	public static void loadIniFiles() {
         try {
-			p.load(new FileInputStream("C:\\Users\\Bruno\\eclipse-workspace\\CTMongo\\src\\com\\ctm\\CloudToMongo.ini"));
+			CloudToMongoIni.load(new FileInputStream("C:\\Users\\Bruno\\eclipse-workspace\\CTMongo\\src\\com\\ctm\\CloudToMongo.ini"));
+			MongoToMysqlIni.load(new FileInputStream("C:\\Users\\Bruno\\eclipse-workspace\\CTMongo\\src\\com\\ctm\\CloudToMongo.ini"));
+			loadCloudToMongoIni();
+			loadMongoToMysqlIni();
 		} catch (FileNotFoundException  e2) {
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        return p;
     }
 	/*// data vem no formato DD/MM/YYYY queremos YYYY-MM-DD
                 String date = (String)document_json.get("dat");
