@@ -36,7 +36,7 @@ public class CloudToMongo implements MqttCallback {
     static String mongo_database = new String();
     static String mongo_collection_invalidas = new String();
     static String mongo_collection_sensor = new String();
-    static MongoToMysql mysql = new MongoToMysql();
+ //   static MongoToMysql mysql = new MongoToMysql();
     static Properties p = new Properties();
     
     //thresh_holds
@@ -107,7 +107,7 @@ public class CloudToMongo implements MqttCallback {
     public static Properties getIniFile() {
     	Properties p = new Properties();
         try {
-			p.load(new FileInputStream("C:\\Users\\Bruno\\eclipse-workspace\\CTMongo\\src\\com\\ctm\\CloudToMongo.ini"));
+			p.load(new FileInputStream("CloudToMongo.ini"));
 		} catch (FileNotFoundException  e2) {
 			
 		} catch (IOException e) {
