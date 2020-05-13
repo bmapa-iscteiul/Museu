@@ -12,7 +12,7 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 
-public class LinkToMongo extends Thread {
+public class SepararMedicoesThread extends Thread {
 	private Properties initParametersMongo;
 	private com.ctm.ShareResourceMedicoes shareResource;
 	private static final int sleepTime=1700;
@@ -21,7 +21,7 @@ public class LinkToMongo extends Thread {
 	private DB clientDB;
 	private DBCollection  sensorCollection;
 	
-	public LinkToMongo(ShareResourceMedicoes sh) {
+	public SepararMedicoesThread(ShareResourceMedicoes sh) {
 		try {
 			this.shareResource=sh;
 			initParametersMongo = new Properties();
@@ -63,7 +63,7 @@ public class LinkToMongo extends Thread {
 	
 	public static void main(String[] args) {
 		ShareResourceMedicoes share = new ShareResourceMedicoes();
-		LinkToMongo link = new LinkToMongo(share);
+		SepararMedicoesThread link = new SepararMedicoesThread(share);
 		MedicaoThread tmp = new Temperatura(share);
 		link.start();
 		tmp.start();
