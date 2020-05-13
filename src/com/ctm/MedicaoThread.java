@@ -6,13 +6,13 @@ import java.util.List;
 import com.mongodb.DBObject;
 
 
-public abstract class Measurement extends Thread {
+public abstract class MedicaoThread extends Thread {
 	private List<Double> values= new ArrayList<Double>();
-	private ShareResourceMongoToVerificationThread shareResource;
+	private ShareResourceMedicoes shareResource;
 	private DBObject lastMessage;
 	
 	
-	public Measurement(ShareResourceMongoToVerificationThread shareresource) {
+	public MedicaoThread(ShareResourceMedicoes shareresource) {
 		this.shareResource=shareresource;
 	}
 	

@@ -3,20 +3,24 @@ package com.ctm;
 import com.mongodb.DBObject;
 
 
-public class Temperatura extends Measurement {
+public class Temperatura extends MedicaoThread {
+	
+	public boolean running = true;
 		
-	public Temperatura(ShareResourceMongoToVerificationThread shareresource) {
+	public Temperatura(ShareResourceMedicoes shareresource) {
 		super(shareresource);
 		setName("tmp");
 	}
 	
 	public void run() {
-		try {
-			DBObject next = getNextMeasurement();
-			System.out.println(getName()+"->"+next.get(getName()).toString());
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		while(running) {
+			try {
+				DBObject next = getNextMeasurement();
+				System.out.println(getName()+"->"+next.get(getName()).toString());
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 

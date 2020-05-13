@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.mongodb.DBObject;
 
-public class ShareResourceMongoToVerificationThread {
+public class ShareResourceMedicoes {
 	private List<DBObject> medicoes = new ArrayList<DBObject>();
 	private int lastObjectIndex=-1;
 	private static final int max= 5;
