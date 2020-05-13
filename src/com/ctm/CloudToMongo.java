@@ -81,7 +81,7 @@ public class CloudToMongo implements MqttCallback {
         try {
                 DBObject document_json;
                 document_json = (DBObject) JSON.parse(clean(c.toString()));
-                validateMessage(document_json);
+                //validateMessage(document_json);
                 System.out.println(document_json);
                 mongocol.insert(document_json);
         } catch (Exception e) {
@@ -135,6 +135,7 @@ public class CloudToMongo implements MqttCallback {
             mongo_database = p.getProperty("mongo_database");
             mongo_collection_invalidas = p.getProperty("mongo_collection_invalidas");
             mongo_collection_sensor = p.getProperty("mongo_collection_sensor");
+            System.out.println("Loaded the ini file");
         } catch (Exception e) {
 
             System.out.println("Error reading CloudToMongo.ini file " + e);

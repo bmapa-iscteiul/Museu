@@ -54,6 +54,10 @@ public class MongoToMysql {
 		loadIni();
 	    new MongoToMysql().connectToMongo();
 	    new MongoToMysql().connectToMysql();
+	    new SepararMedicoes(mongocol).start();
+	    while(!Thread.interrupted()) {
+	    	
+	    }
 		
 	}
 	
@@ -173,27 +177,6 @@ public class MongoToMysql {
  	                medicoesSensorQueue.add(mMov);
                 	
              */
-	public class getFromMongo extends Thread{
-		//Mongo
-		MongoClient mongoClient;
-	    DB db;
-	    DBCollection mongocol;
-	    String cloud_server = new String();
-	    String cloud_topic = new String();
-	    String mongo_host = new String();
-	    String mongo_database = new String();
-	    String mongo_collection_invalidas = new String();
-	    String mongo_collection_sensor = new String();
-	    MongoToMysql mysql = new MongoToMysql();
-		
-		public getFromMongo() {
-			
-		}
-		
-		public void run() {
-			
-		}
-	}
 	
 	
 }
