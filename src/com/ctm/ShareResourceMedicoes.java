@@ -11,8 +11,9 @@ public class ShareResourceMedicoes {
 	private static final int max= 5;
 	
 	public synchronized void addMedicao(DBObject medicao) {
-		if(lastObjectIndex+1 >= max)
-			clearList();	
+		if(lastObjectIndex+1 >= max) {
+			removeLastMedicao();	
+		}
 		medicoes.add(medicao);
 		this.lastObjectIndex=medicoes.size()-1;
 		notifyAll();
@@ -25,8 +26,8 @@ public class ShareResourceMedicoes {
 		return medicoes.get(lastObjectIndex);
 	}
 	
-	private void clearList() {
-		medicoes.clear();
+	private void removeLastMedicao() {
+		medicoes.remove(0);
 		lastObjectIndex=-1;
 	}
 	
