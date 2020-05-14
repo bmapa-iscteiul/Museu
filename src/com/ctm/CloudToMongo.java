@@ -3,8 +3,6 @@ package com.ctm;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Random;
@@ -29,7 +27,8 @@ public class CloudToMongo implements MqttCallback {
     MqttClient mqttclient;
     static MongoClient mongoClient;
     static DB db;
-    static DBCollection mongocol;
+    static DBCollection mongocol_sensor;
+    static DBCollection mongocol_invalidas;
     static String cloud_server = new String();
     static String cloud_topic = new String();
     static String mongo_host = new String();
@@ -37,7 +36,7 @@ public class CloudToMongo implements MqttCallback {
     static String mongo_collection_invalidas = new String();
     static String mongo_collection_sensor = new String();
  //   static MongoToMysql mysql = new MongoToMysql();
-    static Properties p = new Properties();
+    static Properties CloudToMongoIni = new Properties();
     
     //thresh_holds
     static int TMP_MAX;
@@ -72,18 +71,24 @@ public class CloudToMongo implements MqttCallback {
     public void connectMongo() {
 		mongoClient = new MongoClient(new MongoClientURI(mongo_host));
 		db = mongoClient.getDB(mongo_database);
-        mongocol = db.getCollection(mongo_collection_sensor);
+        mongocol_sensor = db.getCollection(mongo_collection_sensor);
+        mongocol_invalidas = db.getCollection(mongo_collection_invalidas);
     }
 
     @SuppressWarnings("deprecation")
 	@Override
     public void messageArrived(String topic, MqttMessage c) throws Exception {
         try {
-                DBObject document_json;
-                document_json = (DBObject) JSON.parse(clean(c.toString()));
-                //validateMessage(document_json);
-                System.out.println(document_json);
-                mongocol.insert(document_json);
+                DBObject message = (DBObject) JSON.parse(c.toString());
+                DBObject original_msg =  (DBObject) JSON.parse(c.toString());
+                if(hasAllFields(message)) {
+                	if(!isValidMessage(message).toString().equals(original_msg.toString())) {
+                		mongocol_invalidas.insert(original_msg);
+                		System.out.println("Inserida na colecao invalidas");
+                	}
+                	mongocol_sensor.insert(message);
+                	System.out.println("Inserida na colecao sensor");
+                }
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -105,36 +110,35 @@ public class CloudToMongo implements MqttCallback {
     }	
     
     public static Properties getIniFile() {
-    	Properties p = new Properties();
         try {
-			p.load(new FileInputStream("CloudToMongo.ini"));
+			CloudToMongoIni.load(new FileInputStream("CloudToMongo.ini"));
 		} catch (FileNotFoundException  e2) {
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        return p;
+        return CloudToMongoIni;
     }
     
     
     //Loads all the info of the file into variables
     public static void loadIni() {
     	try {
-            p = getIniFile();
-            TMP_MAX = Integer.parseInt(p.getProperty("tmp_max"));   
-            TMP_MIN = Integer.parseInt(p.getProperty("tmp_min"));
-            HUM_MAX = Integer.parseInt(p.getProperty("hum_max"));
-            HUM_MIN = Integer.parseInt(p.getProperty("hum_min"));
-            CELL_MAX = Integer.parseInt(p.getProperty("cell_max"));
-            CELL_MIN = Integer.parseInt(p.getProperty("cell_min"));
+            CloudToMongoIni = getIniFile();
+            TMP_MAX = Integer.parseInt(CloudToMongoIni.getProperty("tmp_max"));   
+            TMP_MIN = Integer.parseInt(CloudToMongoIni.getProperty("tmp_min"));
+            HUM_MAX = Integer.parseInt(CloudToMongoIni.getProperty("hum_max"));
+            HUM_MIN = Integer.parseInt(CloudToMongoIni.getProperty("hum_min"));
+            CELL_MAX = Integer.parseInt(CloudToMongoIni.getProperty("cell_max"));
+            CELL_MIN = Integer.parseInt(CloudToMongoIni.getProperty("cell_min"));
             
-            cloud_server = p.getProperty("cloud_server");
-            cloud_topic = p.getProperty("cloud_topic");
-            mongo_host = p.getProperty("mongo_host");
-            mongo_database = p.getProperty("mongo_database");
-            mongo_collection_invalidas = p.getProperty("mongo_collection_invalidas");
-            mongo_collection_sensor = p.getProperty("mongo_collection_sensor");
+            cloud_server = CloudToMongoIni.getProperty("cloud_server");
+            cloud_topic = CloudToMongoIni.getProperty("cloud_topic");
+            mongo_host = CloudToMongoIni.getProperty("mongo_host");
+            mongo_database = CloudToMongoIni.getProperty("mongo_database");
+            mongo_collection_invalidas = CloudToMongoIni.getProperty("mongo_collection_invalidas");
+            mongo_collection_sensor = CloudToMongoIni.getProperty("mongo_collection_sensor");
             System.out.println("Loaded the ini file");
         } catch (Exception e) {
 
@@ -143,17 +147,35 @@ public class CloudToMongo implements MqttCallback {
         }
     }
 
-    public boolean validateMessage(DBObject message) {
+    public boolean hasAllFields(DBObject message) {
+    	try {
+	    	if(message.get("tmp") == "null" ||
+	    			message.get("hum") == "null" ||
+	    					message.get("cell") == "null" ||
+	    							message.get("dat") == "null" ||
+	    								message.get("tim") == "null" ||
+	    								 message.get("sens") == "null"
+	    		) {
+	    		return false;
+	    	};
+    	}catch(Exception e) {
+    		System.out.println("Não tem os campos todos");
+    	}
+    	return true;
+    }
+    
+    public DBObject isValidMessage(DBObject message) {
     	double tmp = Double.parseDouble(message.get("tmp").toString());
     	double hum = Double.parseDouble(message.get("hum").toString());
         int cell = Integer.parseInt(message.get("cell").toString());
         //int mov = Integer.parseInt(message.get("mov").toString());
         
-        if(tmp < TMP_MIN || tmp > TMP_MAX) {return false;}
-        if(hum < HUM_MIN || hum > HUM_MAX) {return false;}
-        if(cell < CELL_MIN || cell > CELL_MAX) {return false;}
+        if(tmp < TMP_MIN || tmp > TMP_MAX) {message.put("tmp", "NA");}
+        if(hum < HUM_MIN || hum > HUM_MAX) {message.put("hum", "NA");}
+        if(cell < CELL_MIN || cell > CELL_MAX) {message.put("cell", "NA");}
         //if(mov < 0 || mov > 1) {return false;}
-        System.out.println("Mensagem válida");
-    	return true;
+    	return message;
     }
+    
+     
 }
