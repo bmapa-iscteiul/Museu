@@ -10,6 +10,7 @@ public class ShareResourceMedicoes {
 	private int lastObjectIndex=-1;
 	private static final int max= 5;
 	
+	
 	public synchronized void addMedicao(DBObject medicao) {
 		if(lastObjectIndex+1 >= max) {
 			removeLastMedicao();	
