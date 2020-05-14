@@ -85,6 +85,7 @@ public class CloudToMongo implements MqttCallback {
                 	if(!isValidMessage(message).toString().equals(original_msg.toString())) {
                 		mongocol_invalidas.insert(original_msg);
                 		System.out.println("Inserida na colecao invalidas");
+                		System.out.println("yo");
                 	}
                 	mongocol_sensor.insert(message);
                 	System.out.println("Inserida na colecao sensor");
