@@ -8,3 +8,4 @@ TODOS:
   - Criar recurso partilhado para Alertas e MedicoesSensor
   - Meter a Thread EnviarDados, a enviar email no caso de falha
   - Criar Thread para atualizar tabela sistema (trigger Mysql -> inicia thread)
+  - Implementar os algoritmos para detecao de alertas (Humidade, Movimento e Luminusidade)
