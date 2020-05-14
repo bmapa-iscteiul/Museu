@@ -16,7 +16,7 @@ public class Temperatura extends MedicaoThread {
 		while(running) {
 			try {
 				DBObject next = getNextMeasurement();
-				System.out.println(getName()+"->"+next.get(getName()).toString());
+				System.out.println(getName()+"->"+next.get("tim").toString());
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

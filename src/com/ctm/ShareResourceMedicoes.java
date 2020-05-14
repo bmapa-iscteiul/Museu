@@ -28,7 +28,7 @@ public class ShareResourceMedicoes {
 	
 	private void removeLastMedicao() {
 		medicoes.remove(0);
-		lastObjectIndex=-1;
+		lastObjectIndex=medicoes.size()-1;
 	}
 	
 }

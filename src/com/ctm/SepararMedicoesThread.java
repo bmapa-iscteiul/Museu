@@ -48,10 +48,10 @@ public class SepararMedicoesThread extends Thread {
 		while(true) {
 			try {
 				sleep(sleepTime);
-				DBCursor medicoes = sensorCollection.find();
+				DBCursor medicoes = sensorCollection.find();//.sort(new BasicDBObject("tim",-1));
 				if(medicoes.size()!=0) {
-				for(DBObject medicao:medicoes)
-					shareResource.addMedicao(medicao);
+					shareResource.addMedicao(medicoes.toArray().get(medicoes.size()-1));
+					removecolection();
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -59,6 +59,13 @@ public class SepararMedicoesThread extends Thread {
 		}
 	}
 	
+	
+	private void removecolection() {
+		DBCursor datas = sensorCollection.find();
+		while (datas.hasNext()) {
+		   sensorCollection.remove(datas.next());
+		}	
+	}
 	
 	
 	public static void main(String[] args) {
