@@ -71,9 +71,13 @@ public class SepararMedicoesThread extends Thread {
 	public static void main(String[] args) {
 		ShareResourceMedicoes share = new ShareResourceMedicoes();
 		SepararMedicoesThread link = new SepararMedicoesThread(share);
-		MedicaoThread tmp = new Temperatura(share);
+		ShareResourceRegisto share2 = new ShareResourceRegisto();
+		MedicaoThread tmp = new Temperatura(share,share2);
+		SendToMysql stm= new SendToMysql(share2);
+		share2.setSendTomysql(stm);
 		link.start();
 		tmp.start();
+		stm.start();
 	}
 	
 	

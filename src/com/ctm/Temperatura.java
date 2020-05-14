@@ -11,8 +11,8 @@ public class Temperatura extends MedicaoThread {
 	
 	public boolean running = true;
 		
-	public Temperatura(ShareResourceMedicoes shareresource) {
-		super(shareresource);
+	public Temperatura(ShareResourceMedicoes shareresource,ShareResourceRegisto shareResourceReg) {
+		super(shareresource, shareResourceReg);
 		setName("tmp");
 	}
 	
@@ -20,10 +20,12 @@ public class Temperatura extends MedicaoThread {
 		while(running) {
 			try {
 				DBObject next = getLastMeasurement();
-				double valorDaUltimaMedicao = Double.parseDouble(next.get(this.getName()).toString());
-				addValue(valorDaUltimaMedicao);
-				checkForAlert();
-				System.out.println(getName()+"->"+next.get("tmp").toString());
+				MedicaoSensor medicao = dbObjectToMedicao(next);
+				addValue(medicao.getValorMedicao());
+				Alerta alerta = checkForAlert(medicao);
+				if(alerta != null)
+					setAlertaToshareReource(alerta);
+				setMedicaoToShareResource(medicao);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -32,26 +34,27 @@ public class Temperatura extends MedicaoThread {
 	}
 	
 	
-	public void checkForAlert() {
+	public Alerta checkForAlert(MedicaoSensor medicao) {
 		List<Double> medicoes = getMeasurements();
 		if(medicoes.size() < 3) {
-			return;
+			return null;
 		}
 		double limite_temperatura = Double.parseDouble(getProperty("limitetemperatura"));
 		double lastMedicao = medicoes.get(medicoes.size()-1);
 		if(allAboveZona2Seguranca() && risingTemperature() && oneAboveZona1Seguranca()) {
 			//String dataHora, String tipoSensor, double valor, int controlo, double limit, String descricao
-			String datahora = getDataHora();
+		//	String datahora = getDataHora();
 			String tipoSensor = "tmp";
 			double valor = lastMedicao;
 			int controlo = 0;
 			double limite = limite_temperatura;
-			String descricao = "Alerta de incêndio!  Ultima Temperatura: " + valor + " Limite: " + limite_temperatura ;
-			Alerta alerta = new Alerta(datahora, tipoSensor, valor, controlo, limite, descricao);
+			String descricao = "Alerta de incêndio!";
+			Alerta alerta = new Alerta(medicao.getDataHoraMedicao(), tipoSensor, valor, controlo, limite, descricao);
 			System.out.println("Foi criado um alerta!");
 			//ENVIAR ALERTA PARA LISTA DE ALERTAS.
+			return alerta;
 		}
-		
+		return null;
 	}
 	
 	public boolean allAboveZona2Seguranca() {
