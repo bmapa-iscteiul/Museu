@@ -13,30 +13,30 @@ import java.util.Properties;
 
 public class SendToMysql extends Thread {
 	
-	private Properties initParametersMysql;
+	//private Properties initParametersMysql;
 	private Connection mySqlConnection;
 	private Statement mySqlstatements;
 	private ShareResourceRegisto shareresource;
 	private static final int sleepTime=6000;
 	
 	public SendToMysql(ShareResourceRegisto sh) {
-		try {
+	//	try {
 			this.shareresource=sh;
-			initParametersMysql = new Properties();
-			initParametersMysql.load(new FileInputStream("MongoToMysql.ini"));
-		} catch (FileNotFoundException e) {
+		//	initParametersMysql = new Properties();
+		//	initParametersMysql.load(new FileInputStream("MongoToMysql.ini"));
+		//} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
+		//	e.printStackTrace();
+		//} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//	e.printStackTrace();
+	//	}
 	}
 	
 	private void connectToMysql() {
-		String database_password = initParametersMysql.getProperty("database_password");
-		String database_user = initParametersMysql.getProperty("database_user");
-		String database_connection = initParametersMysql.getProperty("mysql_host");
+		String database_password = MainMongoToMySql.getMysqlProperty("database_password");
+		String database_user = MainMongoToMySql.getMysqlProperty("database_user");
+		String database_connection = MainMongoToMySql.getMysqlProperty("mysql_host");
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
 			mySqlConnection =  DriverManager.getConnection(database_connection,database_user,database_password);
@@ -91,18 +91,6 @@ public class SendToMysql extends Thread {
 		}
 	}
 	
-	private String getTimeInSqlFormat(String date) {
-        try {
-        	  date = date.replace('/', '-');
-              SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
-              SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-			date = sdf2.format(sdf.parse(date));
-		} catch (ParseException e) {
-			e.printStackTrace();
-		} 
-        return date;
-
-	}
 	
 	
 

@@ -39,7 +39,7 @@ public class Temperatura extends MedicaoThread {
 		if(medicoes.size() < 3) {
 			return null;
 		}
-		double limite_temperatura = Double.parseDouble(getProperty("limitetemperatura"));
+		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("limitetemperatura"));
 		double lastMedicao = medicoes.get(medicoes.size()-1);
 		if(allAboveZona2Seguranca() && risingTemperature() && oneAboveZona1Seguranca()) {
 			//String dataHora, String tipoSensor, double valor, int controlo, double limit, String descricao
@@ -58,8 +58,8 @@ public class Temperatura extends MedicaoThread {
 	}
 	
 	public boolean allAboveZona2Seguranca() {
-		double limite_temperatura = Double.parseDouble(getProperty("limitetemperatura"));
-		double zona_2_seguranca = Double.parseDouble(getProperty("zona2seguranca"));
+		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("limitetemperatura"));
+		double zona_2_seguranca = Double.parseDouble(MainMongoToMySql.getMysqlProperty("zona2seguranca"));
 		double limite2= limite_temperatura - (limite_temperatura * zona_2_seguranca);
 		List<Double> medicoes = getMeasurements();
 		for(int i = medicoes.size() - 1; i > medicoes.size() - 4; i-- ) {
@@ -80,8 +80,8 @@ public class Temperatura extends MedicaoThread {
 		return true;
 	}
 	public boolean oneAboveZona1Seguranca() {
-		double limite_temperatura = Double.parseDouble(getProperty("limitetemperatura"));
-		double zona_1_seguranca = Double.parseDouble(getProperty("zona1seguranca"));
+		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("limitetemperatura"));
+		double zona_1_seguranca = Double.parseDouble(MainMongoToMySql.getMysqlProperty("zona1seguranca"));
 		double limite1= limite_temperatura - (limite_temperatura * zona_1_seguranca);
 		List<Double> medicoes = getMeasurements();
 		for(int i = medicoes.size() - 1; i > medicoes.size() - 4; i-- ) {

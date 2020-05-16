@@ -16,12 +16,11 @@ public abstract class MedicaoThread extends Thread {
 	private List<Double> values= new ArrayList<Double>();
 	private ShareResourceMedicoes shareResource;
 	private DBObject lastMessage;
-	static Properties MongoToMysqlIni = new Properties();
+	
 	private ShareResourceRegisto shareResourceReg;
 	
 	
 	public MedicaoThread(ShareResourceMedicoes shareresource, ShareResourceRegisto shareResourceReg) {
-		loadIni();
 		this.shareResource=shareresource;
 		this.shareResourceReg=shareResourceReg;
 	}
@@ -55,20 +54,7 @@ public abstract class MedicaoThread extends Thread {
 		return new MedicaoSensor(valor, getName(), datetime);
 	}
 	
-	public static void loadIni() {
-        try {
-			MongoToMysqlIni.load(new FileInputStream("MongoToMysql.ini"));
-		} catch (FileNotFoundException  e2) {
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }
 	
-	public String getProperty(String key) {
-		return MongoToMysqlIni.getProperty(key);
-	}
 	
 	public String changeDateFormat(String date) {
 		try {
@@ -83,17 +69,8 @@ public abstract class MedicaoThread extends Thread {
 	}
 	
 	public String joinDateWithTime(String date, String time) {
-	//	try {
-			//DBObject lastMeasurement = getLastMeasurement();
-		//	String dat = lastMeasurement.get("dat").toString();
-		//	String tim = lastMeasurement.get("tim").toString();
 			date = date.replace('/', '-');
 			return date + " " + time;
-	//	} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-	//		e.printStackTrace();
-	//	}
-	//	return null;
 	}
 	
 	public String getDataHora(String date, String time) {
@@ -101,4 +78,10 @@ public abstract class MedicaoThread extends Thread {
 		dataHora = changeDateFormat(dataHora);
 		return dataHora;
 	}
+	
+	
+	
+	
+	
+	
 }

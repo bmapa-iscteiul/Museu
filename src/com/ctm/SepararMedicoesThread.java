@@ -13,7 +13,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 
 public class SepararMedicoesThread extends Thread {
-	private Properties initParametersMongo;
+//	private Properties initParametersMongo;
 	private com.ctm.ShareResourceMedicoes shareResource;
 	private static final int sleepTime=1700;
 	
@@ -22,22 +22,12 @@ public class SepararMedicoesThread extends Thread {
 	private DBCollection  sensorCollection;
 	
 	public SepararMedicoesThread(ShareResourceMedicoes sh) {
-		try {
 			this.shareResource=sh;
-			initParametersMongo = new Properties();
-			initParametersMongo.load(new FileInputStream("CloudToMongo.ini"));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 	private void connectToMongo() {
-        String mongo_host = initParametersMongo.getProperty("mongo_host");
-        String mongo_database = initParametersMongo.getProperty("mongo_database");
-        String mongo_collection = initParametersMongo.getProperty("mongo_collection_sensor");
+        String mongo_host = MainMongoToMySql.getMongoProperty("mongo_host");
+        String mongo_database = MainMongoToMySql.getMongoProperty("mongo_database");
+        String mongo_collection = MainMongoToMySql.getMongoProperty("mongo_collection_sensor");
 		mongoClient = new MongoClient(new MongoClientURI(mongo_host));
 		clientDB =    (mongoClient).getDB(mongo_database);
        sensorCollection =  (DBCollection) clientDB.getCollection(mongo_collection);
@@ -68,17 +58,7 @@ public class SepararMedicoesThread extends Thread {
 	}
 	
 	
-	public static void main(String[] args) {
-		ShareResourceMedicoes share = new ShareResourceMedicoes();
-		SepararMedicoesThread link = new SepararMedicoesThread(share);
-		ShareResourceRegisto share2 = new ShareResourceRegisto();
-		MedicaoThread tmp = new Temperatura(share,share2);
-		SendToMysql stm= new SendToMysql(share2);
-		share2.setSendTomysql(stm);
-		link.start();
-		tmp.start();
-		stm.start();
-	}
+	
 	
 	
 	

@@ -79,8 +79,8 @@ public class CloudToMongo implements MqttCallback {
 	@Override
     public void messageArrived(String topic, MqttMessage c) throws Exception {
         try {
-                DBObject message = (DBObject) JSON.parse(c.toString());
-                DBObject original_msg =  (DBObject) JSON.parse(c.toString());
+                DBObject message = (DBObject) JSON.parse(clean(c.toString()));
+                DBObject original_msg =  (DBObject) JSON.parse(clean(c.toString()));
                 if(hasAllFields(message)) {
                 	if(!isValidMessage(message).toString().equals(original_msg.toString())) {
                 		mongocol_invalidas.insert(original_msg);
@@ -106,8 +106,9 @@ public class CloudToMongo implements MqttCallback {
     }
   
     public String clean(String message) {
-		return (message.replaceAll("\"\"", "\","));
-        
+    	String old = "\""+"mov"+"\""+":"+"\""+"0"+"\"";
+    	message = message.replace(old,",");
+		return message.replace("\""+"\"", "\""+","+"\"");// (message.replaceAll("\"\"", "\","));   
     }	
     
     public static Properties getIniFile() {
