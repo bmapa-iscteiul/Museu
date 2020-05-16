@@ -18,7 +18,7 @@ public abstract class MedicaoThread extends Thread {
 	private DBObject lastMessage;
 	
 	private ShareResourceRegisto shareResourceReg;
-	
+	private boolean podeEnviarAlerta = true;
 	
 	public MedicaoThread(ShareResourceMedicoes shareresource, ShareResourceRegisto shareResourceReg) {
 		this.shareResource=shareresource;
@@ -34,8 +34,19 @@ public abstract class MedicaoThread extends Thread {
 		shareResourceReg.setMedicao(medicao);
 	}
 	
+	public boolean podeEnviarAlerta() {
+		return podeEnviarAlerta;
+	}
+	
 	public void setAlertaToshareReource(Alerta alerta) {
+		try {
 		shareResourceReg.setAlerta(alerta);
+		int sleepTime=Integer.parseInt(MainMongoToMySql.getMysqlProperty("tempoderecuperacao"));
+		new WaitForSendAlert(podeEnviarAlerta, sleepTime);
+		}catch (Exception e) {
+			int tempoPorOmissao=1000;
+			new WaitForSendAlert(podeEnviarAlerta, tempoPorOmissao);
+		}
 	}
 	
 	public List<Double> getMeasurements(){
@@ -80,7 +91,26 @@ public abstract class MedicaoThread extends Thread {
 	}
 	
 	
-	
+	class WaitForSendAlert extends Thread{
+		boolean canSendAlert;
+		int sleepTime;
+		
+		public WaitForSendAlert(boolean canSend,int sleepTime) {
+			this.sleepTime=sleepTime;
+			this.canSendAlert=canSend;
+		}
+		
+		public void run() {
+			try {
+				sleep(sleepTime);
+				this.canSendAlert=true;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		
+	}
 	
 	
 	

@@ -1,11 +1,8 @@
 package com.ctm;
 
-
-
 import java.util.List;
 
 import com.mongodb.DBObject;
-
 
 public class Temperatura extends MedicaoThread {
 	
@@ -23,7 +20,7 @@ public class Temperatura extends MedicaoThread {
 				MedicaoSensor medicao = dbObjectToMedicao(next);
 				addValue(medicao.getValorMedicao());
 				Alerta alerta = checkForAlert(medicao);
-				if(alerta != null)
+				if(podeEnviarAlerta() && alerta != null)
 					setAlertaToshareReource(alerta);
 				setMedicaoToShareResource(medicao);
 			} catch (InterruptedException e) {
