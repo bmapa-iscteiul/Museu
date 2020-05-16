@@ -13,24 +13,13 @@ import java.util.Properties;
 
 public class SendToMysql extends Thread {
 	
-	//private Properties initParametersMysql;
 	private Connection mySqlConnection;
 	private Statement mySqlstatements;
 	private ShareResourceRegisto shareresource;
-	private static final int sleepTime=6000;
+	private static  int sleepTime=6000;
 	
 	public SendToMysql(ShareResourceRegisto sh) {
-	//	try {
 			this.shareresource=sh;
-		//	initParametersMysql = new Properties();
-		//	initParametersMysql.load(new FileInputStream("MongoToMysql.ini"));
-		//} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-		//	e.printStackTrace();
-		//} catch (IOException e) {
-			// TODO Auto-generated catch block
-		//	e.printStackTrace();
-	//	}
 	}
 	
 	private void connectToMysql() {
@@ -50,6 +39,7 @@ public class SendToMysql extends Thread {
 		connectToMysql();
 		while(true) {
 			try {
+				sleepTime=Integer.parseInt(MainMongoToMySql.getMysqlProperty("intervalomigracaomysql"));
 				sleep(sleepTime);
 				List<MedicaoSensor> medicoes = shareresource.getMedicoes();
 				sendMedicoes(medicoes);
