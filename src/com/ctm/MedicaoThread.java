@@ -1,16 +1,12 @@
 package com.ctm;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+
 
 import com.mongodb.DBObject;
-
 
 public abstract class MedicaoThread extends Thread {
 	private List<Double> values= new ArrayList<Double>();
@@ -39,14 +35,10 @@ public abstract class MedicaoThread extends Thread {
 	}
 	
 	public void setAlertaToshareReource(Alerta alerta) {
-		try {
 		shareResourceReg.setAlerta(alerta);
+		podeEnviarAlerta=false;
 		int sleepTime=Integer.parseInt(MainMongoToMySql.getMysqlProperty("tempoderecuperacao"));
-		new WaitForSendAlert(podeEnviarAlerta, sleepTime);
-		}catch (Exception e) {
-			int tempoPorOmissao=1000;
-			new WaitForSendAlert(podeEnviarAlerta, tempoPorOmissao);
-		}
+		new WaitForSendAlert(podeEnviarAlerta, sleepTime).start();
 	}
 	
 	public List<Double> getMeasurements(){

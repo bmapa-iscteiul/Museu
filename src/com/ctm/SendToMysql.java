@@ -40,6 +40,7 @@ public class SendToMysql extends Thread {
 		while(true) {
 			try {
 				sleepTime=Integer.parseInt(MainMongoToMySql.getMysqlProperty("intervalomigracaomysql"));
+				System.out.println("sleep time->"+sleepTime);
 				sleep(sleepTime);
 				List<MedicaoSensor> medicoes = shareresource.getMedicoes();
 				sendMedicoes(medicoes);

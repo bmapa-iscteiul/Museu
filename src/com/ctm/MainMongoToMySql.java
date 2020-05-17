@@ -23,10 +23,12 @@ public class MainMongoToMySql {
     }
 	
 	public static String getMysqlProperty(String key) {
+		loadIni();
 		return MongoToMysqlIni.getProperty(key);
 	}
 	
 	public static String getMongoProperty(String key) {
+		loadIni();
 		return mongoIni.getProperty(key);
 	}
 	
