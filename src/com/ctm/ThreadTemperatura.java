@@ -4,11 +4,11 @@ import java.util.List;
 
 import com.mongodb.DBObject;
 
-public class Temperatura extends MedicaoThread {
+public class ThreadTemperatura extends MedicaoThread {
 	
 	public boolean running = true;
 		
-	public Temperatura(ShareResourceMedicoes shareresource,ShareResourceRegisto shareResourceReg) {
+	public ThreadTemperatura(ShareResourceMedicoes shareresource,ShareResourceRegisto shareResourceReg) {
 		super(shareresource, shareResourceReg);
 		setName("tmp");
 	}
@@ -45,7 +45,7 @@ public class Temperatura extends MedicaoThread {
 			double valor = lastMedicao;
 			int controlo = 0;
 			double limite = limite_temperatura;
-			String descricao = "Alerta de incêndio!";
+			String descricao = "Alerta de incï¿½ndio!";
 			Alerta alerta = new Alerta(medicao.getDataHoraMedicao(), tipoSensor, valor, controlo, limite, descricao);
 			System.out.println("Foi criado um alerta!");
 			//ENVIAR ALERTA PARA LISTA DE ALERTAS.
