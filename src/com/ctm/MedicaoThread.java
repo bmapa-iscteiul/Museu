@@ -2,6 +2,7 @@ package com.ctm;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,8 +53,9 @@ public abstract class MedicaoThread extends Thread {
 	public MedicaoSensor dbObjectToMedicao(DBObject ob) {
 		double valor = Double.parseDouble(ob.get(this.getName()).toString());
 		String date = ob.get("dat").toString();
-		String time = ob.get("tim").toString();
-		String datetime= getDataHora(date, time);
+		//String time = ob.get("tim").toString();
+		LocalTime time = LocalTime.now();
+		String datetime= getDataHora(date, time.toString());
 		return new MedicaoSensor(valor, getName(), datetime);
 	}
 	
@@ -61,7 +63,7 @@ public abstract class MedicaoThread extends Thread {
 	
 	public String changeDateFormat(String date) {
 		try {
-      	  date = date.replace('/', '-');
+      	  	date = date.replace('/', '-');
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
             SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 			date = sdf2.format(sdf.parse(date));
