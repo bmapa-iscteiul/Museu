@@ -3,6 +3,11 @@ package com.ctm;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,9 +31,7 @@ import com.mongodb.util.JSON;
 
 /*
  * 
- * 1)É null ou é sem valor
- * 2)funcao: hasAllFields -> alterar em conformidade com a resposta de 1)
- * 3)funcao: message_makeValid -> colocar troca de dataHora para timestamp java
+ * 1) utilizar o message.contains para caso sesnor inativo=> nao aparecer (evitar nullpointerexception)
  * 
  */
 
@@ -122,7 +125,8 @@ public class CloudToMongo implements MqttCallback {
                 		System.out.println("Inserida na colecao invalidas");
                 		System.out.println(message);
                 }else if(message_hasValidValue(message)) {
-                	java_replaceDateTime(message);
+                	message = java_replaceDateTime(message);
+                	message = correct_invalidChar(message);
                 	mongocol_sensor.insert(message);
                 	System.out.println("Inserida na colecao sensor");
                 }
@@ -136,9 +140,6 @@ public class CloudToMongo implements MqttCallback {
     	String hum = (String) message.get("hum");
     	String cell = (String) message.get("cell");
     	String mov = (String) message.get("mov");
-    	String dat = (String) message.get("dat");
-    	String tim = (String) message.get("tim");
-    	String sens = (String) message.get("sens");
     	
     	if(!tmp.equals("")) {
     		try {
@@ -189,8 +190,13 @@ public class CloudToMongo implements MqttCallback {
     	}
     }
     
-    public void java_replaceDateTime(DBObject message) {
-    	
+    
+    public DBObject java_replaceDateTime(DBObject message) throws ParseException {
+    	String time = LocalTime.now().toString().substring(0,8);
+    	String date = LocalDate.now().toString();
+    	message.put("tim", time);
+    	message.put("dat", time);
+    	return message;
     }
     
     @Override

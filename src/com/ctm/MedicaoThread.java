@@ -53,35 +53,8 @@ public abstract class MedicaoThread extends Thread {
 	public MedicaoSensor dbObjectToMedicao(DBObject ob) {
 		double valor = Double.parseDouble(ob.get(this.getName()).toString());
 		String date = ob.get("dat").toString();
-		//String time = ob.get("tim").toString();
-		LocalTime time = LocalTime.now();
-		String datetime= getDataHora(date, time.toString());
-		return new MedicaoSensor(valor, getName(), datetime);
-	}
-	
-	
-	
-	public String changeDateFormat(String date) {
-		try {
-      	  	date = date.replace('/', '-');
-            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
-            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-			date = sdf2.format(sdf.parse(date));
-		} catch (ParseException e) {
-			e.printStackTrace();
-		} 
-		return date;
-	}
-	
-	public String joinDateWithTime(String date, String time) {
-			date = date.replace('/', '-');
-			return date + " " + time;
-	}
-	
-	public String getDataHora(String date, String time) {
-		String dataHora = joinDateWithTime(date,time);
-		dataHora = changeDateFormat(dataHora);
-		return dataHora;
+		String time = ob.get("tim").toString();
+		return new MedicaoSensor(valor, getName(), date+" "+time);
 	}
 	
 	
