@@ -22,6 +22,13 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.util.JSON;
 
+/*
+ * 
+ * 1)É null ou é sem valor
+ * 2)funcao: hasAllFields -> alterar em conformidade com a resposta de 1)
+ * 3)funcao: message_makeValid -> colocar troca de dataHora para timestamp java
+ * 
+ */
 
 public class CloudToMongo implements MqttCallback {
     MqttClient mqttclient;
@@ -38,15 +45,11 @@ public class CloudToMongo implements MqttCallback {
  //   static MongoToMysql mysql = new MongoToMysql();
     static Properties CloudToMongoIni = new Properties();
     
-    //thresh_holds
+    //Atualizador ini
     static int TMP_MAX;
     static int TMP_MIN;
-    static int HUM_MAX;
-    static int HUM_MIN;
-    static int CELL_MAX ;
-    static int CELL_MIN;
+    static int CELL_MAX;
        
-    static final int LIST_MAX_SIZE = 20;
     ArrayList<MedicaoSensor> medicoesSensorQueue = new ArrayList<MedicaoSensor>(); 
 
     public static void main(String[] args) {
@@ -81,12 +84,11 @@ public class CloudToMongo implements MqttCallback {
         try {
                 DBObject message = (DBObject) JSON.parse(clean(c.toString()));
                 DBObject original_msg =  (DBObject) JSON.parse(clean(c.toString()));
-                if(hasAllFields(message)) {
-                	if(!isValidMessage(message).toString().equals(original_msg.toString())) {
+                
+                if(!message_makeValid(message).toString().equals(original_msg.toString())) {
                 		mongocol_invalidas.insert(original_msg);
                 		System.out.println("Inserida na colecao invalidas");
-                		System.out.println("yo");
-                	}
+                }else if(message_hasValidValue(message)) {
                 	mongocol_sensor.insert(message);
                 	System.out.println("Inserida na colecao sensor");
                 }
@@ -128,12 +130,9 @@ public class CloudToMongo implements MqttCallback {
     public static void loadIni() {
     	try {
             CloudToMongoIni = getIniFile();
-            TMP_MAX = Integer.parseInt(CloudToMongoIni.getProperty("tmp_max"));   
-            TMP_MIN = Integer.parseInt(CloudToMongoIni.getProperty("tmp_min"));
-            HUM_MAX = Integer.parseInt(CloudToMongoIni.getProperty("hum_max"));
-            HUM_MIN = Integer.parseInt(CloudToMongoIni.getProperty("hum_min"));
-            CELL_MAX = Integer.parseInt(CloudToMongoIni.getProperty("cell_max"));
-            CELL_MIN = Integer.parseInt(CloudToMongoIni.getProperty("cell_min"));
+            TMP_MAX = Integer.parseInt(CloudToMongoIni.getProperty("MaxValidoTemperatura"));   
+            TMP_MIN = Integer.parseInt(CloudToMongoIni.getProperty("MinValidoTemperatura"));
+            CELL_MAX = Integer.parseInt(CloudToMongoIni.getProperty("MaxValidoLuminosidade"));
             
             cloud_server = CloudToMongoIni.getProperty("cloud_server");
             cloud_topic = CloudToMongoIni.getProperty("cloud_topic");
@@ -149,6 +148,7 @@ public class CloudToMongo implements MqttCallback {
         }
     }
 
+    /**É null ou é sem valor?*/
     public boolean hasAllFields(DBObject message) {
     	try {
 	    	if(message.get("tmp") == "null" ||
@@ -161,22 +161,37 @@ public class CloudToMongo implements MqttCallback {
 	    		return false;
 	    	};
     	}catch(Exception e) {
-    		System.out.println("N�o tem os campos todos");
+    		System.out.println("N�o tem os campos todos");
     	}
     	return true;
     }
     
-    public DBObject isValidMessage(DBObject message) {
+    public DBObject message_makeValid(DBObject message) {
     	double tmp = Double.parseDouble(message.get("tmp").toString());
     	double hum = Double.parseDouble(message.get("hum").toString());
         int cell = Integer.parseInt(message.get("cell").toString());
         //int mov = Integer.parseInt(message.get("mov").toString());
         
         if(tmp < TMP_MIN || tmp > TMP_MAX) {message.put("tmp", "NA");}
-        if(hum < HUM_MIN || hum > HUM_MAX) {message.put("hum", "NA");}
-        if(cell < CELL_MIN || cell > CELL_MAX) {message.put("cell", "NA");}
+        if(hum < 0 || hum > 100) {message.put("hum", "NA");}
+        if(cell < 0 || cell > CELL_MAX) {message.put("cell", "NA");}
         //if(mov < 0 || mov > 1) {return false;}
     	return message;
+    }
+    
+    //Verificar se mensagem tem pelo menos 1 valor aceitavel => colocar nas validas
+    public boolean message_hasValidValue(DBObject message) {
+    	String tmp = message.get("tmp").toString();
+    	String hum = message.get("hum").toString();
+    	String cell = message.get("cell").toString();
+        //String mov = message.get("mov").toString();
+        if((!tmp.equals("") && !tmp.equals("NA"))
+        	|| (!hum.equals("") && !hum.equals("NA"))
+        	|| (!cell.equals("") && !cell.equals("NA"))
+			/*|| (!mov.equals("") && !mov.equals("NA"))*/){
+        	return true;
+        }
+        return false;
     }
     
      
