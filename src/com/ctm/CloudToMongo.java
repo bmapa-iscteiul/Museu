@@ -247,12 +247,12 @@ public class CloudToMongo implements MqttCallback {
 /*EXCEPTIONS/EXTRA*/     
     
     public String error25_05_2020(String message) {
-    	if(message.contains("\""+"\""+", "+"mov")) {
-    		String old1 = "\""+"\""+", "+"mov";
-    		message = message.replace(old1,"\""+","+"mov");
-    	}if(message.contains("\""+"\""+", "+"sens")) {
-    		String old2 = "\""+"\""+", "+"sens";
-    		message = message.replace(old2,"\""+","+"sens");
+    	if(message.contains("\"\", mov")) {
+    		String old1 = "\"\", mov";
+    		message = message.replace(old1,"\",mov");
+    	}if(message.contains("\"\", sens")) {
+    		String old2 = "\"\", sens";
+    		message = message.replace(old2,"\",sens");
     	}
     	return message;
     }
