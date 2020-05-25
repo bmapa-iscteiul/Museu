@@ -38,7 +38,7 @@ public abstract class MedicaoThread extends Thread {
 	public void setAlertaToshareReource(Alerta alerta) {
 		shareResourceReg.setAlerta(alerta);
 		podeEnviarAlerta=false;
-		int sleepTime=Integer.parseInt(MainMongoToMySql.getMysqlProperty("tempoderecuperacao"));
+		int sleepTime=Integer.parseInt(MainMongoToMySql.getMysqlProperty("TempoDeRecuperacao"));
 		new WaitForSendAlert(podeEnviarAlerta, sleepTime).start();
 	}
 	

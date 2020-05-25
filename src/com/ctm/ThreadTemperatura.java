@@ -36,7 +36,7 @@ public class ThreadTemperatura extends MedicaoThread {
 		if(medicoes.size() < 3) {
 			return null;
 		}
-		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("limitetemperatura"));
+		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteTemperatura"));
 		double lastMedicao = medicoes.get(medicoes.size()-1);
 		if(allAboveZona2Seguranca() && risingTemperature() && oneAboveZona1Seguranca()) {
 			//String dataHora, String tipoSensor, double valor, int controlo, double limit, String descricao
@@ -55,8 +55,8 @@ public class ThreadTemperatura extends MedicaoThread {
 	}
 	
 	public boolean allAboveZona2Seguranca() {
-		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("limitetemperatura"));
-		double zona_2_seguranca = Double.parseDouble(MainMongoToMySql.getMysqlProperty("zona2seguranca"));
+		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteTemperatura"));
+		double zona_2_seguranca = Double.parseDouble(MainMongoToMySql.getMysqlProperty("Zona2Seguranca"));
 		double limite2= limite_temperatura - (limite_temperatura * zona_2_seguranca);
 		List<Double> medicoes = getMeasurements();
 		for(int i = medicoes.size() - 1; i > medicoes.size() - 4; i-- ) {
@@ -77,8 +77,8 @@ public class ThreadTemperatura extends MedicaoThread {
 		return true;
 	}
 	public boolean oneAboveZona1Seguranca() {
-		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("limitetemperatura"));
-		double zona_1_seguranca = Double.parseDouble(MainMongoToMySql.getMysqlProperty("zona1seguranca"));
+		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteTemperatura"));
+		double zona_1_seguranca = Double.parseDouble(MainMongoToMySql.getMysqlProperty("Zona1Seguranca"));
 		double limite1= limite_temperatura - (limite_temperatura * zona_1_seguranca);
 		List<Double> medicoes = getMeasurements();
 		for(int i = medicoes.size() - 1; i > medicoes.size() - 4; i-- ) {
