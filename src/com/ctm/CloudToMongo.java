@@ -79,7 +79,6 @@ public class CloudToMongo implements MqttCallback {
             mongo_collection_sensor = CloudToMongoIni.getProperty("mongo_collection_sensor");
             System.out.println("Loaded the ini file");
         } catch (Exception e) {
-
             System.out.println("Error reading CloudToMongo.ini file " + e);
             JOptionPane.showMessageDialog(null, "The CloudToMongo.ini file wasn't found.", "CloudToMongo", JOptionPane.ERROR_MESSAGE);
         }
@@ -113,76 +112,91 @@ public class CloudToMongo implements MqttCallback {
         mongocol_invalidas = db.getCollection(mongo_collection_invalidas);
     }
 
+/*MESSAGEARRIVED*/
     @SuppressWarnings("deprecation")
 	@Override
     public void messageArrived(String topic, MqttMessage c) throws Exception {
         try {
-                DBObject message = (DBObject) JSON.parse(clean(c.toString()));
-                DBObject original_msg =  (DBObject) JSON.parse(clean(c.toString()));
+                DBObject message = (DBObject) JSON.parse(/*clean*/error25_05_2020(c.toString()));
+                DBObject original_msg =  (DBObject) JSON.parse(/*clean*/error25_05_2020(c.toString()));
                 
                 if(!correct_invalidChar(message).toString().equals(original_msg.toString())) {
                 		mongocol_invalidas.insert(original_msg);
                 		System.out.println("Inserida na colecao invalidas");
-                		System.out.println(message);
-                }else if(message_hasValidValue(message)) {
+                }
+                message = correctInexistentKeys(message);
+                
+                if(message_hasValidValue(message)) {
                 	message = java_replaceDateTime(message);
                 	message = correct_invalidChar(message);
+                	message.removeField("NA");
                 	mongocol_sensor.insert(message);
                 	System.out.println("Inserida na colecao sensor");
                 }
+                System.out.println("original: "+original_msg);
+                System.out.println("inserida: "+message);
         } catch (Exception e) {
             System.out.println(e);
         }
     }
     
+/*VALIDACOES*/
     public DBObject correct_invalidChar(DBObject message) {
-    	String tmp = (String) message.get("tmp");
-    	String hum = (String) message.get("hum");
-    	String cell = (String) message.get("cell");
-    	String mov = (String) message.get("mov");
     	
-    	if(!tmp.equals("")) {
-    		try {
-    			double value = Double.parseDouble(tmp);
-    			correct_outOfBoundaries(message, "tmp", value);
-    		} catch (NumberFormatException e) {
-    			message.put(tmp, "NA");
+    	if(message.containsField("tmp")) {
+    		String tmp = (String) message.get("tmp");
+    		if(!tmp.equals("")) {
+    			try {
+    				double value = Double.parseDouble(tmp);
+    				correct_outOfBoundaries(message, "tmp", value); 
+    			} catch (NumberFormatException e) {
+    				message.put(tmp, "NA");
+    			}
     		}
-    	}if(!hum.equals("")) {
-    		try {
-    			double value = Double.parseDouble(hum);
-    			correct_outOfBoundaries(message, "hum", value);
-    		} catch (NumberFormatException e) {
-    			message.put(hum, "NA");
+    	}if(message.containsField("hum")) {
+    		String hum = (String) message.get("hum");
+    		if(!hum.equals("")) {
+    			try {
+    				double value = Double.parseDouble(hum);
+    				correct_outOfBoundaries(message, "hum", value);
+    			} catch (NumberFormatException e) {
+    				message.put(hum, "NA");
+    			}
     		}
-    	}if(!cell.equals("")) {
-    		try {
-    			double value = Double.parseDouble(cell);
-    			correct_outOfBoundaries(message, "cell", value);
-    		} catch (NumberFormatException e) {
-    			message.put(cell, "NA");
+    	}if(message.containsField("cell")) {
+    		String cell = (String) message.get("cell");
+    		if(!cell.equals("")) {
+    			try {
+    				double value = Double.parseDouble(cell); 
+    				correct_outOfBoundaries(message, "cell", value);
+    			} catch (NumberFormatException e) {
+    				message.put(cell, "NA");
+    			}
     		}
-    	}if(!mov.equals("")) {
-    		try {
-    			double value = Double.parseDouble(mov);
-    			correct_outOfBoundaries(message, "mov", value);
-    		} catch (NumberFormatException e) {
-    			message.put(mov, "NA");
+    	}if(message.containsField("mov")) {
+    		String mov = (String) message.get("mov");
+    		if(!mov.equals("")) {
+    			try {
+    				double value = Double.parseDouble(mov);
+    				correct_outOfBoundaries(message, "mov", value);
+    			} catch (NumberFormatException e) {
+    				message.put(mov, "NA");
+    			}
     		}
     	}
     	return message;  	
     }
     
     public void correct_outOfBoundaries(DBObject message, String type, Double value) {
-    	switch(type) {
+    	switch(type) { 
     	case "tmp":
     		if(value < TMP_MIN || value > TMP_MAX) {message.put("tmp", "NA");}
     		break;
     	case "hum":
-    		if(value < 0 || value > 100) {message.put("hum", "NA");}
+    		if(value < 0.0 || value > 100.0) {message.put("hum", "NA");}
     		break;
     	case "cell":
-    		if(value < 0 || value > CELL_MAX) {message.put("cell", "NA");}
+    		if(value < 0.0 || value > CELL_MAX) {message.put("cell", "NA");}
     		break;
     	case "mov":
     		if(value!=0.0 && value!=1.0) {message.put("mov", "NA");}
@@ -190,28 +204,30 @@ public class CloudToMongo implements MqttCallback {
     	}
     }
     
-    
+    /* Date in format: yyyy-mm-dd*/
     public DBObject java_replaceDateTime(DBObject message) throws ParseException {
     	String time = LocalTime.now().toString().substring(0,8);
     	String date = LocalDate.now().toString();
     	message.put("tim", time);
-    	message.put("dat", time);
+    	message.put("dat", date);
     	return message;
     }
-    
-    @Override
-    public void connectionLost(Throwable cause) {
+     
+    //Adicao de campo, caso ele nao exista
+    public DBObject correctInexistentKeys(DBObject message) {
+    	if(!message.containsField("tmp")) {
+    		message.put("tmp", "");
+    	}if(!message.containsField("hum")) {
+    		message.put("hum", "");
+    	}if(!message.containsField("cell")) {
+    		message.put("cell", "");
+    	}if(!message.containsField("mov")) {
+    		message.put("mov", "");
+    	}if(!message.containsField("sens")) {
+    		message.put("sens", "");
+    	}
+    	return message;
     }
-
-    @Override
-    public void deliveryComplete(IMqttDeliveryToken token) {
-    }
-  
-    public String clean(String message) {
-    	String old = "\""+"mov"+"\""+":"+"\""+"0"+"\"";
-    	message = message.replace(old,",");
-		return message.replace("\""+"\"", "\""+","+"\"");// (message.replaceAll("\"\"", "\","));   
-    }	 
     
     //Verificar se mensagem tem pelo menos 1 valor aceitavel => colocar nas validas
     public boolean message_hasValidValue(DBObject message) {
@@ -227,6 +243,32 @@ public class CloudToMongo implements MqttCallback {
         }
         return false;
     }
+
+/*EXCEPTIONS/EXTRA*/     
+    
+    public String error25_05_2020(String message) {
+    	if(message.contains("\""+"\""+", "+"mov")) {
+    		String old1 = "\""+"\""+", "+"mov";
+    		message = message.replace(old1,"\""+","+"mov");
+    	}if(message.contains("\""+"\""+", "+"sens")) {
+    		String old2 = "\""+"\""+", "+"sens";
+    		message = message.replace(old2,"\""+","+"sens");
+    	}
+    	return message;
+    }
+    @Override
+    public void connectionLost(Throwable cause) {
+    }
+
+    @Override
+    public void deliveryComplete(IMqttDeliveryToken token) {
+    }
+  
+/*    public String clean(String message) {
+    	String old = "\""+"mov"+"\""+":"+"\""+"0"+"\"";
+    	message = message.replace(old,",");
+		return message.replace("\""+"\"", "\""+","+"\"");// (message.replaceAll("\"\"", "\","));   
+    }	*/ 
     
      
 }
