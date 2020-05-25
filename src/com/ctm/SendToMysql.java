@@ -39,7 +39,7 @@ public class SendToMysql extends Thread {
 		connectToMysql();
 		while(true) {
 			try {
-				sleepTime=Integer.parseInt(MainMongoToMySql.getMysqlProperty("intervalomigracaomysql"));
+				sleepTime=getMigrationInterval();
 				System.out.println("sleep time->"+sleepTime);
 				sleep(sleepTime);
 				List<MedicaoSensor> medicoes = shareresource.getMedicoes();
@@ -80,6 +80,15 @@ public class SendToMysql extends Thread {
 		System.out.println("Error quering  the database . " + e);
 		//enviar email
 		}
+	}
+	
+	public int getMigrationInterval() {
+		String concatTime = MainMongoToMySql.getMysqlProperty("IntervaloMigracaoMysql");
+		int hours = Integer.parseInt(concatTime.substring(0,concatTime.indexOf(":")));
+		int minutes = Integer.parseInt(concatTime.substring(concatTime.indexOf(":")+1, concatTime.indexOf(":")+3));
+		int seconds = Integer.parseInt(concatTime.substring(concatTime.indexOf(":")+4));
+		int migrationTime = ((hours*3600)+(minutes*60)+seconds)*1000;
+		return migrationTime;
 	}
 	
 	
