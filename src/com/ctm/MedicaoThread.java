@@ -14,9 +14,9 @@ public abstract class MedicaoThread extends Thread {
 	private List<Double> values= new ArrayList<Double>();
 	private ShareResourceMedicoes shareResource;
 	private DBObject lastMessage;
-	
 	private ShareResourceRegisto shareResourceReg;
 	private boolean podeEnviarAlerta = true;
+	
 	
 	public MedicaoThread(ShareResourceMedicoes shareresource, ShareResourceRegisto shareResourceReg) {
 		this.shareResource=shareresource;
@@ -40,6 +40,7 @@ public abstract class MedicaoThread extends Thread {
 		shareResourceReg.setAlerta(alerta);
 		podeEnviarAlerta=false;
 		int sleepTime=Integer.parseInt(MainMongoToMySql.getMysqlProperty("TempoDeRecuperacao"));
+		System.out.println(sleepTime);
 		new WaitForSendAlert(podeEnviarAlerta, sleepTime).start();
 	}
 	
