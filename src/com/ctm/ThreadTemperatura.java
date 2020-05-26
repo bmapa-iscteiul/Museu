@@ -6,7 +6,6 @@ import com.mongodb.DBObject;
 
 public class ThreadTemperatura extends MedicaoThread {
 	
-	public boolean running = true;
 		
 	public ThreadTemperatura(ShareResourceMedicoes shareresource,ShareResourceRegisto shareResourceReg) {
 		super(shareresource, shareResourceReg);
@@ -14,7 +13,7 @@ public class ThreadTemperatura extends MedicaoThread {
 	}
 	
 	public void run() {
-		while(running) {
+		while(isRunning()) {
 			try {
 				DBObject next = getLastMeasurement();
 				MedicaoSensor medicao = dbObjectToMedicao(next);
