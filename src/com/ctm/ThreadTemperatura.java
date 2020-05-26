@@ -39,8 +39,6 @@ public class ThreadTemperatura extends MedicaoThread {
 		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteTemperatura"));
 		double lastMedicao = medicoes.get(medicoes.size()-1);
 		if(allAboveZona2Seguranca() && risingTemperature() && oneAboveZona1Seguranca()) {
-			//String dataHora, String tipoSensor, double valor, int controlo, double limit, String descricao
-		//	String datahora = getDataHora();
 			String tipoSensor = "tmp";
 			double valor = lastMedicao;
 			int controlo = 0;
@@ -48,7 +46,6 @@ public class ThreadTemperatura extends MedicaoThread {
 			String descricao = "Alerta de inc�ndio!";
 			Alerta alerta = new Alerta(medicao.getDataHoraMedicao(), tipoSensor, valor, controlo, limite, descricao);
 			System.out.println("Foi criado um alerta!");
-			//ENVIAR ALERTA PARA LISTA DE ALERTAS.
 			return alerta;
 		}
 		return null;

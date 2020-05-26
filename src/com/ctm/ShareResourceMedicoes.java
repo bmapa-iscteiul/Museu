@@ -8,7 +8,7 @@ import com.mongodb.DBObject;
 public class ShareResourceMedicoes {
 	private List<DBObject> medicoes = new ArrayList<DBObject>();
 	private int lastObjectIndex=-1;
-	private static final int max= 5;
+	private static final int max=100;
 	
 	
 	public synchronized void addMedicao(DBObject medicao) {
