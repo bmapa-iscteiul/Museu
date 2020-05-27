@@ -44,9 +44,10 @@ public class ThreadTemperatura extends MedicaoThread {
 					MedicaoSensor medicao = dbObjectToMedicao(next);
 					addValue(medicao.getValorMedicao());
 					Alerta alerta = checkForAlert(medicao);
-					if(podeEnviarAlerta() && alerta != null)
+					Alerta alerta2 = checkForSensorAlert();
+					if(podeEnviarAlerta() && (alerta != null || alerta2 != null) ) {
 						setAlertaToShareResource(alerta);
-//(1)Nao podem fazer isto assim (setMedicaoToShareResource(medicao)), caso contrario estariamos a colocar a ultima medicao no recurso e a outras duas continuavam na fila. Certo?
+					}
 					setMedicaoToShareResource(medicao);
 				} else {
 					Alerta alerta = checkForSensorAlert();
@@ -60,6 +61,7 @@ public class ThreadTemperatura extends MedicaoThread {
 		}
 	}
 
+	
 /*ALERTA DE PROBLEMAS NO SENSOR*/
 	public Alerta checkForSensorAlert() {
 		if(getNoValue()==sensorMaxSemValor) {
@@ -88,6 +90,7 @@ public class ThreadTemperatura extends MedicaoThread {
 			Alerta alerta = makeAlerta("Temperatura a subir rapidamente!", medicao, medicoes);
 			return alerta;
 		}
+		getMeasurements().remove(0);
 		return null;
 	}
 
@@ -109,7 +112,7 @@ public class ThreadTemperatura extends MedicaoThread {
 			dataHora = LocalDate.now().toString()+" "+LocalTime.now().toString().substring(0,8);
 		}
 		Alerta alerta = new Alerta(dataHora, tipoSensor, valor, controlo, limite, descricao);
-		System.out.println("Foi criado um alerta: "+descricao);
+		//System.out.println("Foi criado um alerta: "+descricao);
 		return alerta;
 	}
 	
