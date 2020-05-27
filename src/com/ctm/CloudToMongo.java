@@ -125,10 +125,10 @@ public class CloudToMongo implements MqttCallback {
                 		System.out.println("Inserida na colecao invalidas");
                 }
                 message = correctInexistentKeys(message);
+                message = correct_invalidChar(message);
                 
                 if(message_hasValidValue(message)) {
                 	message = java_replaceDateTime(message);
-                	message = correct_invalidChar(message);
                 	message.removeField("NA");
                 	mongocol_sensor.insert(message);
                 	System.out.println("Inserida na colecao sensor");
@@ -150,7 +150,7 @@ public class CloudToMongo implements MqttCallback {
     				double value = Double.parseDouble(tmp);
     				correct_outOfBoundaries(message, "tmp", value); 
     			} catch (NumberFormatException e) {
-    				message.put(tmp, "NA");
+    				message.put("tmp", "NA");
     			}
     		}
     	}if(message.containsField("hum")) {
@@ -160,7 +160,7 @@ public class CloudToMongo implements MqttCallback {
     				double value = Double.parseDouble(hum);
     				correct_outOfBoundaries(message, "hum", value);
     			} catch (NumberFormatException e) {
-    				message.put(hum, "NA");
+    				message.put("hum", "NA");
     			}
     		}
     	}if(message.containsField("cell")) {
@@ -170,7 +170,7 @@ public class CloudToMongo implements MqttCallback {
     				double value = Double.parseDouble(cell); 
     				correct_outOfBoundaries(message, "cell", value);
     			} catch (NumberFormatException e) {
-    				message.put(cell, "NA");
+    				message.put("cell", "NA");
     			}
     		}
     	}if(message.containsField("mov")) {
@@ -180,7 +180,7 @@ public class CloudToMongo implements MqttCallback {
     				double value = Double.parseDouble(mov);
     				correct_outOfBoundaries(message, "mov", value);
     			} catch (NumberFormatException e) {
-    				message.put(mov, "NA");
+    				message.put("mov", "NA");
     			}
     		}
     	}

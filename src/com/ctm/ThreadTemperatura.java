@@ -46,13 +46,16 @@ public class ThreadTemperatura extends MedicaoThread {
 					Alerta alerta = checkForAlert(medicao);
 					Alerta alerta2 = checkForSensorAlert();
 					if(podeEnviarAlerta() && (alerta != null || alerta2 != null) ) {
+						System.out.println(alerta.getDescricao());
 						setAlertaToShareResource(alerta);
 					}
 					setMedicaoToShareResource(medicao);
 				} else {
 					Alerta alerta = checkForSensorAlert();
-					if(podeEnviarAlerta() && alerta != null)
+					if(podeEnviarAlerta() && alerta != null) {
+						System.out.println(alerta.getDescricao());
 						setAlertaToShareResource(alerta);
+					}
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
