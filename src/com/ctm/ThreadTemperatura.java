@@ -37,7 +37,7 @@ public class ThreadTemperatura extends MedicaoThread {
 	}
 	
 	public void run() {
-		/*while(isRunning()) {
+		while(isRunning()) {
 			try {
 				DBObject next = getLastMeasurement();
 				MedicaoSensor medicao = dbObjectToMedicao(next);
@@ -62,7 +62,7 @@ public class ThreadTemperatura extends MedicaoThread {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}*/
+		}
 	}
 
 	

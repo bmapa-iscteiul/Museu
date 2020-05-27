@@ -20,7 +20,7 @@ public class ThreadHumidade extends MedicaoThread {
 	
 	
 	public void run() {
-		/*while(isRunning()) {
+		while(isRunning()) {
 			try {
 				DBObject next = getLastMeasurement();
 				MedicaoSensor medicao = dbObjectToMedicao(next);
@@ -45,7 +45,7 @@ public class ThreadHumidade extends MedicaoThread {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}*/
+		}
 	}
 	
 /*ALERTA DE PROBLEMAS NO SENSOR*/

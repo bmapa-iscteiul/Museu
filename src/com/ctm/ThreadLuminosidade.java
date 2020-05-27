@@ -49,13 +49,13 @@ public class ThreadLuminosidade extends MedicaoThread {
 /*ALERTA DE PROBLEMAS NO SENSOR*/	
 	public Alerta checkForSensorAlert() {
 		if(getNoValue()>=sensorMaxSemValor && podeEnviarAlerta1(0)) {
-			Alerta alerta = makeAlerta("Sensor temperatura em baixo!", null);
+			Alerta alerta = makeAlerta("Sensor luminosidade em baixo!", null);
 			setNoValue(0);
 			setPodeEnviarAlerta(0,false);
 			alerta.setIndex(0);
 			return alerta;
 		}else if(numberOfErrors()==sensorMaxDadosInvalidos && podeEnviarAlerta1(1)) {
-			Alerta alerta = makeAlerta("Sensor temperatura com problemas!", null);
+			Alerta alerta = makeAlerta("Sensor luminosidade com problemas!", null);
 			cleanErrorList();
 			setPodeEnviarAlerta(1,false);
 			alerta.setIndex(1);
@@ -66,7 +66,6 @@ public class ThreadLuminosidade extends MedicaoThread {
 
 	public Alerta checkForAlert(MedicaoSensor medicao) {
 		List<Double> medicoes = getMeasurements();
-		String descricao = "Alerta de Luminosidade!";
 		//for(int i = 0; i < medicoes.size(); i++ ) {
 			//if(medicoes.get(i) > limiteLuminosidade) {
 		if(medicao.getValorMedicao()>limiteLuminosidade) {

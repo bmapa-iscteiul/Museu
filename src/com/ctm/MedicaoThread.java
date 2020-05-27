@@ -100,6 +100,7 @@ public abstract class MedicaoThread extends Thread {
 		String valorString = ob.get(this.getName()).toString();
 		if(valorString.equals("NA")) {
 			addErrorList("NA");
+			setNoValue(0);
 			return null;
 		}else if(valorString.equals("")) {
 			addErrorList("");
@@ -107,6 +108,7 @@ public abstract class MedicaoThread extends Thread {
 			return null;
 		}
 		addErrorList("");
+		setNoValue(0);
 		double valor = Double.parseDouble(ob.get(this.getName()).toString());
 		String date = ob.get("dat").toString();
 		String time = ob.get("tim").toString();
