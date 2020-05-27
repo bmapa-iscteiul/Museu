@@ -19,36 +19,46 @@ public class ThreadMovimento extends MedicaoThread {
 	
 	public void run() {
 		while(isRunning()) {
-			/*try {
+			try {
 				DBObject next = getLastMeasurement();
-				if(!dbObjectToMedicao(next).equals(null)) {
-					MedicaoSensor medicao = dbObjectToMedicao(next);
+				MedicaoSensor medicao = dbObjectToMedicao(next);
+				
+				if(!(medicao==null)) {
 					addValue(medicao.getValorMedicao());
 					Alerta alerta = checkForAlert(medicao);
-					if(podeEnviarAlerta() && alerta != null) {
+				
+					if(alerta != null) {
+						System.out.println(alerta.getDescricao());
 						setAlertaToShareResource(alerta);
 					}
 					setMedicaoToShareResource(medicao);
 				} else {
 					Alerta alerta = checkForSensorAlert();
-					if(podeEnviarAlerta() && alerta != null)
+					if(alerta != null) {
+						System.out.println(alerta.getDescricao());
 						setAlertaToShareResource(alerta);
+					}
 				}
-			}catch(Exception e) {
-
-			}*/
-
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
+/*ALERTA DE PROBLEMAS NO SENSOR*/
 	public Alerta checkForSensorAlert() {
-		if(getNoValue()==sensorMaxSemValor) {
-			Alerta alerta = makeAlerta("Sensor movimento em baixo!", null, null);
+		if(getNoValue()>=sensorMaxSemValor && podeEnviarAlerta1(0)) {
+			Alerta alerta = makeAlerta("Sensor movimento em baixo!", null);
 			setNoValue(0);
+			setPodeEnviarAlerta(0,false);
+			alerta.setIndex(0);
 			return alerta;
-		}else if(numberOfErrors()==sensorMaxDadosInvalidos) {
-			Alerta alerta = makeAlerta("Sensor movimento com problemas!", null, null);
+		}else if(numberOfErrors()==sensorMaxDadosInvalidos && podeEnviarAlerta1(1)) {
+			Alerta alerta = makeAlerta("Sensor movimento com problemas!", null);
 			cleanErrorList();
+			setPodeEnviarAlerta(1,false);
+			alerta.setIndex(1);
 			return alerta;
 		}
 		return null;
@@ -57,18 +67,20 @@ public class ThreadMovimento extends MedicaoThread {
 
 	public Alerta checkForAlert(MedicaoSensor medicao) {
 		List<Double> medicoes = getMeasurements();
-		String descricao = "Movimento detetado!";
-		for(int i = 0; i < medicoes.size(); i++ ) {
-			if(medicoes.get(i) == MOVIMENTO) {
-				Alerta alerta = makeAlerta(descricao, medicao, medicoes);
+		//for(int i = 0; i < medicoes.size(); i++ ) {
+			//if(medicoes.get(i) == MOVIMENTO) {
+			if(medicao.getValorMedicao()==MOVIMENTO) {
+				Alerta alerta = makeAlerta("Movimento detetado!", medicao);
+				setPodeEnviarAlerta(2,false);
+				alerta.setIndex(2);
 				return alerta;
-			}
 		}
+		getMeasurements().remove(0);
 		return null;
 	}
 	
 	/*FUNCAO GENERICA PARA CRIACAO ALERTA*/
-	public Alerta makeAlerta(String descricao, MedicaoSensor medicao, List<Double> medicoes) {
+	public Alerta makeAlerta(String descricao, MedicaoSensor medicao) {
 		String tipoSensor = "mov";
 		int controlo = 0;
 		String dataHora;
@@ -83,7 +95,7 @@ public class ThreadMovimento extends MedicaoThread {
 			dataHora = LocalDate.now().toString()+" "+LocalTime.now().toString().substring(0,8);
 		}
 		Alerta alerta = new Alerta(dataHora, tipoSensor, valor, controlo, MOVIMENTO, descricao);
-		System.out.println("Foi criado um alerta: "+descricao);
+		//System.out.println("Foi criado um alerta: "+descricao);
 		return alerta;
 	}
 	
