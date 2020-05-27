@@ -5,11 +5,11 @@ package com.ctm;
 public class Alerta {
 	private String DataHora;
 	private String TipoSensor;
-	private double valor;
+	private String valor;
 	private int controlo;
 	private double limit;
 	private String descricao;
-	public Alerta(String dataHora, String tipoSensor, double valor, int controlo, double limit, String descricao) {
+	public Alerta(String dataHora, String tipoSensor, String valor, int controlo, double limit, String descricao) {
 		DataHora = dataHora;
 		TipoSensor = tipoSensor;
 		this.valor = valor;
@@ -31,7 +31,7 @@ public class Alerta {
 	}
 
 
-	public double getValor() {
+	public String getValor() {
 		return valor;
 	}
 
