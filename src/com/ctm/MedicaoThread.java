@@ -38,11 +38,10 @@ public abstract class MedicaoThread extends Thread {
 		return podeEnviarAlerta;
 	}
 	
-	public void setAlertaToshareReource(Alerta alerta) {
+	public void setAlertaToShareResource(Alerta alerta) {
 		shareResourceReg.setAlerta(alerta);
 		podeEnviarAlerta=false;
 		int sleepTime=getRecoveryTime();
-		System.out.println(sleepTime);
 		new WaitForSendAlert(podeEnviarAlerta, sleepTime).start();
 	}
 	

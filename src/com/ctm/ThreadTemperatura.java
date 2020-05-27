@@ -1,5 +1,9 @@
+
 package com.ctm;
 
+import java.util.List;
+
+import com.mongodb.DBObject;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -169,3 +173,4 @@ public class ThreadTemperatura extends MedicaoThread {
 
 
 }
+
