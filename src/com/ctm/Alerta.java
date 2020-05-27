@@ -9,6 +9,8 @@ public class Alerta {
 	private int controlo;
 	private double limit;
 	private String descricao;
+	
+	private int index;
 	public Alerta(String dataHora, String tipoSensor, String valor, int controlo, double limit, String descricao) {
 		DataHora = dataHora;
 		TipoSensor = tipoSensor;
@@ -44,6 +46,13 @@ public class Alerta {
 		return controlo;
 	}
 	
+	public void setIndex(int i) {
+		index = i;
+	}
+	
+	public int getIndex() {
+		return index;
+	}
 	
 
 }

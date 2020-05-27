@@ -40,19 +40,20 @@ public class ThreadTemperatura extends MedicaoThread {
 		while(isRunning()) {
 			try {
 				DBObject next = getLastMeasurement();
+				
 				if(!dbObjectToMedicao(next).equals(null)) {
 					MedicaoSensor medicao = dbObjectToMedicao(next);
 					addValue(medicao.getValorMedicao());
 					Alerta alerta = checkForAlert(medicao);
-					Alerta alerta2 = checkForSensorAlert();
-					if(podeEnviarAlerta() && (alerta != null || alerta2 != null) ) {
+				
+					if(alerta != null) { //os if estao separados para nao dar nullPointer
 						System.out.println(alerta.getDescricao());
 						setAlertaToShareResource(alerta);
 					}
 					setMedicaoToShareResource(medicao);
 				} else {
 					Alerta alerta = checkForSensorAlert();
-					if(podeEnviarAlerta() && alerta != null) {
+					if(alerta != null) {
 						System.out.println(alerta.getDescricao());
 						setAlertaToShareResource(alerta);
 					}
@@ -67,13 +68,17 @@ public class ThreadTemperatura extends MedicaoThread {
 	
 /*ALERTA DE PROBLEMAS NO SENSOR*/
 	public Alerta checkForSensorAlert() {
-		if(getNoValue()==sensorMaxSemValor) {
+		if(getNoValue()>=sensorMaxSemValor && podeEnviarAlerta1(0)) {
 			Alerta alerta = makeAlerta("Sensor temperatura em baixo!", null, null);
 			setNoValue(0);
+			setPodeEnviarAlerta(0,false);
+			alerta.setIndex(0);
 			return alerta;
-		}else if(numberOfErrors()==sensorMaxDadosInvalidos) {
+		}else if(numberOfErrors()==sensorMaxDadosInvalidos && podeEnviarAlerta1(1)) {
 			Alerta alerta = makeAlerta("Sensor temperatura com problemas!", null, null);
 			cleanErrorList();
+			setPodeEnviarAlerta(1,false);
+			alerta.setIndex(1);
 			return alerta;
 		}
 		return null;
@@ -85,12 +90,16 @@ public class ThreadTemperatura extends MedicaoThread {
 		if(medicoes.size() < 3) {
 			return null;
 		}
-		double lastMedicao = medicoes.get(medicoes.size()-1);	
-		if(allAboveZona1Seguranca() && oneAboveLimite()) {
+		double lastMedicao = medicoes.get(medicoes.size()-1);
+		if(allAboveZona1Seguranca() && oneAboveLimite() && podeEnviarAlerta1(3)) {
 			Alerta alerta = makeAlerta("Incendio", medicao, medicoes);
+			setPodeEnviarAlerta(3,false);
+			alerta.setIndex(3);
 			return alerta;
-		}else if(allAboveZona2Seguranca() && oneAboveZona1Seguranca()) {
+		}else if(allAboveZona2Seguranca() && oneAboveZona1Seguranca() && podeEnviarAlerta1(2)) {
 			Alerta alerta = makeAlerta("Temperatura a subir rapidamente!", medicao, medicoes);
+			setPodeEnviarAlerta(2,false);
+			alerta.setIndex(2);
 			return alerta;
 		}
 		getMeasurements().remove(0);

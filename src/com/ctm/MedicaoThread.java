@@ -13,6 +13,7 @@ public abstract class MedicaoThread extends Thread {
 	private boolean running = true;
 	private List<Double> values= new ArrayList<Double>();
 	private List<String> errorSensor = new ArrayList<String>();
+	private boolean [] podeEnviarAlerta1 = {true,true,true,true}; //0-""    1-"NA"   2-zona1   3-limite
 	private int noValue = 0;
 	private ShareResourceMedicoes shareResource;
 	private DBObject lastMessage;
@@ -37,12 +38,18 @@ public abstract class MedicaoThread extends Thread {
 	public boolean podeEnviarAlerta() {
 		return podeEnviarAlerta;
 	}
+	public boolean podeEnviarAlerta1(int index) {
+		return podeEnviarAlerta1[index];
+	}
+	public void setPodeEnviarAlerta(int index, boolean valor) {
+		podeEnviarAlerta1[index] = valor;
+	}
 	
 	public void setAlertaToShareResource(Alerta alerta) {
 		shareResourceReg.setAlerta(alerta);
-		podeEnviarAlerta=false;
+		//podeEnviarAlerta=false;
 		int sleepTime=getRecoveryTime();
-		new WaitForSendAlert(podeEnviarAlerta, sleepTime).start();
+		new WaitForSendAlert(alerta.getIndex(), podeEnviarAlerta1, sleepTime).start();
 	}
 	
 /*LISTA VALORES*/
@@ -117,18 +124,21 @@ public abstract class MedicaoThread extends Thread {
 	
 	
 	class WaitForSendAlert extends Thread{
-		boolean canSendAlert;
+		int index;
+		boolean [] podeEnviarAlerta;
 		int sleepTime;
 		
-		public WaitForSendAlert(boolean canSend,int sleepTime) {
+		public WaitForSendAlert(int index, boolean[]podeEnviarAlerta,int sleepTime) {
+			this.index=index;
+			this.podeEnviarAlerta=podeEnviarAlerta;
 			this.sleepTime=sleepTime;
-			this.canSendAlert=canSend;
 		}
 		
 		public void run() {
 			try {
 				sleep(sleepTime);
-				this.canSendAlert=true;
+				podeEnviarAlerta[index]=true;
+				System.out.println("Pode enviar alerta" + index);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
