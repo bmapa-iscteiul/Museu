@@ -39,10 +39,16 @@ public class MainMongoToMySql {
 		SepararMedicoesThread link = new SepararMedicoesThread(share);
 		ShareResourceRegisto share2 = new ShareResourceRegisto();
 		MedicaoThread tmp = new ThreadTemperatura(share,share2);
+		MedicaoThread hum = new ThreadHumidade(share, share2);
+		MedicaoThread cell = new ThreadLuminosidade(share, share2);
+		MedicaoThread mov = new ThreadMovimento(share, share2);
 		SendToMysql stm= new SendToMysql(share2);
 		share2.setSendTomysql(stm);
 		link.start();
 		tmp.start();
+		hum.start();
+		cell.start();
+		mov.start();
 		stm.start();
 	}
 

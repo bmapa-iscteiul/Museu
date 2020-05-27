@@ -39,9 +39,8 @@ public class SepararMedicoesThread extends Thread {
 			try {
 				sleep(sleepTime);
 				DBCursor medicoes = sensorCollection.find();//.sort(new BasicDBObject("tim",-1));
-				while(medicoes.size()!=0) {
+				if(medicoes.size()!=0) {
 					shareResource.addMedicao(medicoes.toArray().get(medicoes.size()-1));
-					medicoes.toArray().remove(medicoes.size()-1);
 				}
 				removeCollection();
 			} catch (InterruptedException e) {

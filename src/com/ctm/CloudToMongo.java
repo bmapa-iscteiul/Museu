@@ -117,8 +117,8 @@ public class CloudToMongo implements MqttCallback {
 	@Override
     public void messageArrived(String topic, MqttMessage c) throws Exception {
         try {
-                DBObject message = (DBObject) JSON.parse(/*clean*/error25_05_2020(c.toString()));
-                DBObject original_msg =  (DBObject) JSON.parse(/*clean*/error25_05_2020(c.toString()));
+                DBObject message = (DBObject) JSON.parse(/*clean error25_05_2020*/(c.toString()));
+                DBObject original_msg =  (DBObject) JSON.parse(/*clean error25_05_2020*/(c.toString()));
                 
                 if(!correct_invalidChar(message).toString().equals(original_msg.toString())) {
                 		mongocol_invalidas.insert(original_msg);

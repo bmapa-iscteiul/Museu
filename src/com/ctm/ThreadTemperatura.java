@@ -84,7 +84,7 @@ public class ThreadTemperatura extends MedicaoThread {
 		if(allAboveZona1Seguranca() && oneAboveLimite()) {
 			Alerta alerta = makeAlerta("Incendio", medicao, medicoes);
 			return alerta;
-		}if(allAboveZona2Seguranca() && /*risingTemperature() &&*/ oneAboveZona1Seguranca()) {
+		}else if(allAboveZona2Seguranca() && oneAboveZona1Seguranca()) {
 			Alerta alerta = makeAlerta("Temperatura a subir rapidamente!", medicao, medicoes);
 			return alerta;
 		}
@@ -126,26 +126,17 @@ public class ThreadTemperatura extends MedicaoThread {
 		return true;
 	}
 	
-	public boolean risingTemperature() {
-		List<Double> medicoes = getMeasurements();
-		for(int i = medicoes.size() - 1; i > medicoes.size() - 3; i-- ) {
-			if(medicoes.get(i) < medicoes.get(i - 1)) {
-				return false;
-			}
-		}
-		return true;
-	}
 	public boolean oneAboveZona1Seguranca() {
 		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteTemperatura"));
 		double zona_1_seguranca = Double.parseDouble(MainMongoToMySql.getMysqlProperty("Zona1Seguranca"))/100;
 		double limite1= limite_temperatura - (limite_temperatura * zona_1_seguranca);
 		List<Double> medicoes = getMeasurements();
 		for(int i = medicoes.size() - 1; i > medicoes.size() - 4; i-- ) {
-			if(medicoes.get(i) < limite1) {
-				return false;
+			if(medicoes.get(i) > limite1) {
+				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 	
 	public boolean allAboveZona1Seguranca() {
@@ -160,15 +151,16 @@ public class ThreadTemperatura extends MedicaoThread {
 		}
 		return true;
 	}
+	
 	public boolean oneAboveLimite() {
 		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteTemperatura"));
 		List<Double> medicoes = getMeasurements();
 		for(int i = medicoes.size() - 1; i > medicoes.size() - 4; i-- ) {
-			if(medicoes.get(i) < limite_temperatura) {
-				return false;
+			if(medicoes.get(i) > limite_temperatura) {
+				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 
 

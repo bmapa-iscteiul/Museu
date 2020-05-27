@@ -61,13 +61,27 @@ public class ThreadHumidade extends MedicaoThread {
 			return null;
 		}
 		double lastMedicao = medicoes.get(medicoes.size()-1);
-		if(allAboveZona2Seguranca() && risingHumidity() && oneAboveZona1Seguranca()) {
+		if(allAboveZona2Seguranca() && oneAboveZona1Seguranca()) {
 			Alerta alerta = makeAlerta("Humidade elevada!", medicao, medicoes);
+			return alerta;
+		}else if(allAboveZona1Seguranca() && oneAboveLimite()) {
+			Alerta alerta = makeAlerta("Humidade ultrapassou o limite !", medicao, medicoes);
 			return alerta;
 		}
 		return null;
 	}
 	
+	public boolean oneAboveLimite() {
+		double limite_humidade = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteHumidade"));
+		List<Double> medicoes = getMeasurements();
+		for(int i = medicoes.size() - 1; i > medicoes.size() - 4; i-- ) {
+			if(medicoes.get(i) > limite_humidade) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 /*FUNCAO GENERICA PARA CRIACAO ALERTA*/
 	public Alerta makeAlerta(String descricao, MedicaoSensor medicao, List<Double> medicoes) {
 		String tipoSensor = "hum";
@@ -92,7 +106,7 @@ public class ThreadHumidade extends MedicaoThread {
 	public boolean allAboveZona2Seguranca() {
 		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteHumidade"));
 		double zona_2_seguranca = Double.parseDouble(MainMongoToMySql.getMysqlProperty("Zona2Seguranca"));
-		double limite2= limite_temperatura - (limite_temperatura * zona_2_seguranca);
+		double limite2= limite_temperatura - (limite_temperatura * zona_2_seguranca / 100);
 		List<Double> medicoes = getMeasurements();
 		for(int i = medicoes.size() - 1; i > medicoes.size() - 4; i-- ) {
 			if(medicoes.get(i) < limite2) {
@@ -102,19 +116,23 @@ public class ThreadHumidade extends MedicaoThread {
 		return true;
 	}
 	
-	public boolean risingHumidity() {
+	public boolean allAboveZona1Seguranca() {
+		double limite_humidade = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteHumidade"));
+		double zona_1_seguranca = Double.parseDouble(MainMongoToMySql.getMysqlProperty("Zona1Seguranca"))/100;
+		double limite1= limite_humidade - (limite_humidade * zona_1_seguranca);
 		List<Double> medicoes = getMeasurements();
-		for(int i = medicoes.size() - 1; i > medicoes.size() - 3; i-- ) {
-			if(medicoes.get(i) < medicoes.get(i - 1)) {
+		for(int i = medicoes.size() - 1; i > medicoes.size() - 4; i-- ) {
+			if(medicoes.get(i) < limite1) {
 				return false;
 			}
 		}
 		return true;
 	}
+	
 	public boolean oneAboveZona1Seguranca() {
 		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteHumidade"));
 		double zona_1_seguranca = Double.parseDouble(MainMongoToMySql.getMysqlProperty("Zona1Seguranca"));
-		double limite1= limite_temperatura - (limite_temperatura * zona_1_seguranca);
+		double limite1= limite_temperatura - (limite_temperatura * zona_1_seguranca / 100);
 		List<Double> medicoes = getMeasurements();
 		for(int i = medicoes.size() - 1; i > medicoes.size() - 4; i-- ) {
 			if(medicoes.get(i) > limite1) {
