@@ -10,7 +10,7 @@ public class ThreadLuminosidade extends MedicaoThread {
 
 	int sensorMaxSemValor = Integer.parseInt(MainMongoToMySql.getMysqlProperty("SensorMaxSemValor"));
 	int sensorMaxDadosInvalidos = Integer.parseInt(MainMongoToMySql.getMysqlProperty("SensorMaxDadosInvalidos"));
-	double limiteHumidade = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteLuminosidade"));
+	double limiteLuminosidade = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteLuminosidade"));
 	
 	
 	public ThreadLuminosidade(ShareResourceMedicoes shareresource,ShareResourceRegisto shareResourceReg) {
@@ -20,35 +20,45 @@ public class ThreadLuminosidade extends MedicaoThread {
 	
 	public void run() {
 		while(isRunning()) {
-			/*try {
+			try {
 				DBObject next = getLastMeasurement();
-				if(!dbObjectToMedicao(next).equals(null)) {
-					MedicaoSensor medicao = dbObjectToMedicao(next);
+				MedicaoSensor medicao = dbObjectToMedicao(next);
+				
+				if(!(medicao==null)) {
 					addValue(medicao.getValorMedicao());
 					Alerta alerta = checkForAlert(medicao);
-					if(podeEnviarAlerta() && alerta != null) {
+				
+					if(alerta != null) {
+						System.out.println(alerta.getDescricao());
 						setAlertaToShareResource(alerta);
 					}
 					setMedicaoToShareResource(medicao);
 				} else {
 					Alerta alerta = checkForSensorAlert();
-					if(podeEnviarAlerta() && alerta != null)
+					if(alerta != null) {
+						System.out.println(alerta.getDescricao());
 						setAlertaToShareResource(alerta);
+					}
 				}
 			}catch(Exception e) {
 
-			}*/
+			}
 		}
 	}
 	
+/*ALERTA DE PROBLEMAS NO SENSOR*/	
 	public Alerta checkForSensorAlert() {
-		if(getNoValue()==sensorMaxSemValor) {
-			Alerta alerta = makeAlerta("Sensor luminosidade em baixo!", null, null);
+		if(getNoValue()>=sensorMaxSemValor && podeEnviarAlerta1(0)) {
+			Alerta alerta = makeAlerta("Sensor temperatura em baixo!", null);
 			setNoValue(0);
+			setPodeEnviarAlerta(0,false);
+			alerta.setIndex(0);
 			return alerta;
-		}else if(numberOfErrors()==sensorMaxDadosInvalidos) {
-			Alerta alerta = makeAlerta("Sensor luminosidade com problemas!", null, null);
+		}else if(numberOfErrors()==sensorMaxDadosInvalidos && podeEnviarAlerta1(1)) {
+			Alerta alerta = makeAlerta("Sensor temperatura com problemas!", null);
 			cleanErrorList();
+			setPodeEnviarAlerta(1,false);
+			alerta.setIndex(1);
 			return alerta;
 		}
 		return null;
@@ -56,27 +66,29 @@ public class ThreadLuminosidade extends MedicaoThread {
 
 	public Alerta checkForAlert(MedicaoSensor medicao) {
 		List<Double> medicoes = getMeasurements();
-		double limite_luminosidade = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteLuminosidade"));
 		String descricao = "Alerta de Luminosidade!";
-		for(int i = 0; i < medicoes.size(); i++ ) {
-			if(medicoes.get(i) > limite_luminosidade) {
-				Alerta alerta = makeAlerta("Luz Detetada!", medicao, medicoes);
-				return alerta;
-			}
+		//for(int i = 0; i < medicoes.size(); i++ ) {
+			//if(medicoes.get(i) > limiteLuminosidade) {
+		if(medicao.getValorMedicao()>limiteLuminosidade) {
+			Alerta alerta = makeAlerta("Luz detetada!", medicao);
+			setPodeEnviarAlerta(2,false);
+			alerta.setIndex(2);
+			return alerta;
 		}
+		getMeasurements().remove(0);
 		return null;
 	}
 	
 	/*FUNCAO GENERICA PARA CRIACAO ALERTA*/
-	public Alerta makeAlerta(String descricao, MedicaoSensor medicao, List<Double> medicoes) {
+	public Alerta makeAlerta(String descricao, MedicaoSensor medicao) {
 		String tipoSensor = "cell";
 		int controlo = 0;
-		double limite = limiteHumidade;
+		double limite = limiteLuminosidade;
 		String dataHora;
 		String valor;
 
-		if(descricao.equals("Luz Detetada!")) {
-			valor = medicoes.get(medicoes.size()-1).toString()+"; "+medicoes.get(medicoes.size()-2).toString()+"; "+medicoes.get(medicoes.size()-3).toString();
+		if(descricao.equals("Luz detetada!")) {
+			valor = String.valueOf(medicao.getValorMedicao());
 			dataHora = medicao.getDataHoraMedicao();
 
 		}else {/*(descricao.equals("Sensor luminosidade em baixo!") || descricao.equals("Sensor luminosidade com problemas!"))*/
@@ -84,7 +96,7 @@ public class ThreadLuminosidade extends MedicaoThread {
 			dataHora = LocalDate.now().toString()+" "+LocalTime.now().toString().substring(0,8);
 		}
 		Alerta alerta = new Alerta(dataHora, tipoSensor, valor, controlo, limite, descricao);
-		System.out.println("Foi criado um alerta: "+descricao);
+		//System.out.println("Foi criado um alerta: "+descricao);
 		return alerta;
 	}
 
