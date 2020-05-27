@@ -10,19 +10,6 @@ import java.util.List;
 
 import com.mongodb.DBObject;
 
-/**
- * 
- * PROBLEMAS:
- * (1) Procurar por (1) mais abaixo
- * (2) Em run(): usando a funcao podeEnviarAlerta(), nao estamos a esperar para cada alerta individualmente: isso faz com que se
- * for detetado "Temperatura a subir rapidament!" não se consiga enviar "Incendio" a seguir (caso a tmp continuar a aumentar)
- * (3) Classe SepararMedicoes continua com o mesmo problema
- * ALERTAR:
- * (1) Campo valorMedicao de Alerta: é a concatenação dos 3 valores que o geraram (relatório)
- * (2) Foram criados alertas para os casos: "Sensor temperatura em baixo!" e "Sensor temperatura com problemas!"
- * 
- * Apagar pontos acima após resolvidos
- */
 
 public class ThreadTemperatura extends MedicaoThread {
 	
