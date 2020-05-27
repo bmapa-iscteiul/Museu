@@ -27,13 +27,13 @@ public class ThreadLuminosidade extends MedicaoThread {
 					addValue(medicao.getValorMedicao());
 					Alerta alerta = checkForAlert(medicao);
 					if(podeEnviarAlerta() && alerta != null) {
-						setAlertaToshareReource(alerta);
+						setAlertaToShareResource(alerta);
 					}
 					setMedicaoToShareResource(medicao);
 				} else {
 					Alerta alerta = checkForSensorAlert();
 					if(podeEnviarAlerta() && alerta != null)
-						setAlertaToshareReource(alerta);
+						setAlertaToShareResource(alerta);
 				}
 			}catch(Exception e) {
 

@@ -45,13 +45,13 @@ public class ThreadTemperatura extends MedicaoThread {
 					addValue(medicao.getValorMedicao());
 					Alerta alerta = checkForAlert(medicao);
 					if(podeEnviarAlerta() && alerta != null)
-						setAlertaToshareReource(alerta);
+						setAlertaToShareResource(alerta);
 //(1)Nao podem fazer isto assim (setMedicaoToShareResource(medicao)), caso contrario estariamos a colocar a ultima medicao no recurso e a outras duas continuavam na fila. Certo?
 					setMedicaoToShareResource(medicao);
 				} else {
 					Alerta alerta = checkForSensorAlert();
 					if(podeEnviarAlerta() && alerta != null)
-						setAlertaToshareReource(alerta);
+						setAlertaToShareResource(alerta);
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
