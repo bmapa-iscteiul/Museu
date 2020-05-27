@@ -40,13 +40,13 @@ public class ThreadTemperatura extends MedicaoThread {
 		while(isRunning()) {
 			try {
 				DBObject next = getLastMeasurement();
+				MedicaoSensor medicao = dbObjectToMedicao(next);
 				
-				if(!dbObjectToMedicao(next).equals(null)) {
-					MedicaoSensor medicao = dbObjectToMedicao(next);
+				if(!(medicao==null)) {
 					addValue(medicao.getValorMedicao());
 					Alerta alerta = checkForAlert(medicao);
 				
-					if(alerta != null) { //os if estao separados para nao dar nullPointer
+					if(alerta != null) {
 						System.out.println(alerta.getDescricao());
 						setAlertaToShareResource(alerta);
 					}

@@ -13,7 +13,7 @@ public abstract class MedicaoThread extends Thread {
 	private boolean running = true;
 	private List<Double> values= new ArrayList<Double>();
 	private List<String> errorSensor = new ArrayList<String>();
-	private boolean [] podeEnviarAlerta1 = {true,true,true,true}; //0-""    1-"NA"   2-zona1   3-limite
+	private boolean [] podeEnviarAlerta1 = {true, true, true, true}; //0-""    1-"NA"   2-zona1   3-limite
 	private int noValue = 0;
 	private ShareResourceMedicoes shareResource;
 	private DBObject lastMessage;
@@ -139,14 +139,20 @@ public abstract class MedicaoThread extends Thread {
 				sleep(sleepTime);
 				podeEnviarAlerta[index]=true;
 				System.out.println("Pode enviar alerta" + index);
+
+				if(index==0)
+					setNoValue(0);
+				else if(index==1)
+					cleanErrorList();
+
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	public boolean isRunning() {
 		return running;
 	}

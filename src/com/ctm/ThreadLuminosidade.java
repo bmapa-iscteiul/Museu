@@ -20,7 +20,7 @@ public class ThreadLuminosidade extends MedicaoThread {
 	
 	public void run() {
 		while(isRunning()) {
-			try {
+			/*try {
 				DBObject next = getLastMeasurement();
 				if(!dbObjectToMedicao(next).equals(null)) {
 					MedicaoSensor medicao = dbObjectToMedicao(next);
@@ -37,7 +37,7 @@ public class ThreadLuminosidade extends MedicaoThread {
 				}
 			}catch(Exception e) {
 
-			}
+			}*/
 		}
 	}
 	

@@ -19,7 +19,7 @@ public class ThreadMovimento extends MedicaoThread {
 	
 	public void run() {
 		while(isRunning()) {
-			try {
+			/*try {
 				DBObject next = getLastMeasurement();
 				if(!dbObjectToMedicao(next).equals(null)) {
 					MedicaoSensor medicao = dbObjectToMedicao(next);
@@ -36,7 +36,7 @@ public class ThreadMovimento extends MedicaoThread {
 				}
 			}catch(Exception e) {
 
-			}
+			}*/
 
 		}
 	}
