@@ -21,61 +21,78 @@ public class ThreadHumidade extends MedicaoThread {
 	
 	public void run() {
 		while(isRunning()) {
-			/*try {
+			try {
 				DBObject next = getLastMeasurement();
-				if(!dbObjectToMedicao(next).equals(null)) {
-					MedicaoSensor medicao = dbObjectToMedicao(next);
+				MedicaoSensor medicao = dbObjectToMedicao(next);
+				
+				if(!(medicao==null)) {
 					addValue(medicao.getValorMedicao());
 					Alerta alerta = checkForAlert(medicao);
-					if(podeEnviarAlerta() && alerta != null)
+				
+					if(alerta != null) {
+						System.out.println(alerta.getDescricao());
 						setAlertaToShareResource(alerta);
+					}
 					setMedicaoToShareResource(medicao);
 				} else {
 					Alerta alerta = checkForSensorAlert();
-					if(podeEnviarAlerta() && alerta != null)
+					if(alerta != null) {
+						System.out.println(alerta.getDescricao());
 						setAlertaToShareResource(alerta);
+					}
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}*/
+			}
 		}
 	}
 	
+/*ALERTA DE PROBLEMAS NO SENSOR*/
 	public Alerta checkForSensorAlert() {
-		if(getNoValue()==sensorMaxSemValor) {
-			Alerta alerta = makeAlerta("Sensor temperatura em baixo!", null, null);
+		if(getNoValue()>=sensorMaxSemValor && podeEnviarAlerta1(0)) {
+			Alerta alerta = makeAlerta("Sensor humidade em baixo!", null, null);
 			setNoValue(0);
+			setPodeEnviarAlerta(0,false);
+			alerta.setIndex(0);
 			return alerta;
-		}else if(numberOfErrors()==sensorMaxDadosInvalidos) {
-			Alerta alerta = makeAlerta("Sensor temperatura com problemas!", null, null);
+		}else if(numberOfErrors()==sensorMaxDadosInvalidos && podeEnviarAlerta1(1)) {
+			Alerta alerta = makeAlerta("Sensor humidade com problemas!", null, null);
 			cleanErrorList();
+			setPodeEnviarAlerta(1,false);
+			alerta.setIndex(1);
 			return alerta;
 		}
 		return null;
 	}
 	
+/*ALERTA DE SUBIDA DE HUM*/
 	public Alerta checkForAlert(MedicaoSensor medicao) {
 		List<Double> medicoes = getMeasurements();
 		if(medicoes.size() < 3) {
 			return null;
 		}
 		double lastMedicao = medicoes.get(medicoes.size()-1);
-		if(allAboveZona2Seguranca() && oneAboveZona1Seguranca()) {
-			Alerta alerta = makeAlerta("Humidade elevada!", medicao, medicoes);
+		if(allAboveZona1Seguranca() && oneAboveLimite() && podeEnviarAlerta1(3)) {
+			Alerta alerta = makeAlerta("Humidade ultrapassou limite!", medicao, medicoes);
+			setPodeEnviarAlerta(3,false);
+			alerta.setIndex(3);
 			return alerta;
-		}else if(allAboveZona1Seguranca() && oneAboveLimite()) {
-			Alerta alerta = makeAlerta("Humidade ultrapassou o limite !", medicao, medicoes);
+		}else if(allAboveZona2Seguranca() && oneAboveZona1Seguranca() && podeEnviarAlerta1(2)) {
+			Alerta alerta = makeAlerta("Humidade elevada!", medicao, medicoes);
+			setPodeEnviarAlerta(2,false);
+			alerta.setIndex(2);
 			return alerta;
 		}
+		getMeasurements().remove(0);
 		return null;
-	}
+	}	
+	
 	
 	public boolean oneAboveLimite() {
-		double limite_humidade = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteHumidade"));
 		List<Double> medicoes = getMeasurements();
 		for(int i = medicoes.size() - 1; i > medicoes.size() - 4; i-- ) {
-			if(medicoes.get(i) > limite_humidade) {
+			if(medicoes.get(i) > limiteHumidade) {
 				return true;
 			}
 		}
@@ -90,7 +107,8 @@ public class ThreadHumidade extends MedicaoThread {
 		String dataHora;
 		String valor;
 
-		if(descricao.equals("Humidade elevada!")) {
+		if(descricao.equals("Humidade elevada!")
+				|| descricao.equals("Humidade ultrapassou limite!")) {
 			valor = medicoes.get(medicoes.size()-1).toString()+"; "+medicoes.get(medicoes.size()-2).toString()+"; "+medicoes.get(medicoes.size()-3).toString();
 			dataHora = medicao.getDataHoraMedicao();
 
@@ -99,14 +117,12 @@ public class ThreadHumidade extends MedicaoThread {
 			dataHora = LocalDate.now().toString()+" "+LocalTime.now().toString().substring(0,8);
 		}
 		Alerta alerta = new Alerta(dataHora, tipoSensor, valor, controlo, limite, descricao);
-		System.out.println("Foi criado um alerta: "+descricao);
 		return alerta;
 	}
 	
 	public boolean allAboveZona2Seguranca() {
-		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteHumidade"));
-		double zona_2_seguranca = Double.parseDouble(MainMongoToMySql.getMysqlProperty("Zona2Seguranca"));
-		double limite2= limite_temperatura - (limite_temperatura * zona_2_seguranca / 100);
+		double zona_2_seguranca = Double.parseDouble(MainMongoToMySql.getMysqlProperty("Zona2Seguranca"))/100;
+		double limite2= limiteHumidade - (limiteHumidade * zona_2_seguranca);
 		List<Double> medicoes = getMeasurements();
 		for(int i = medicoes.size() - 1; i > medicoes.size() - 4; i-- ) {
 			if(medicoes.get(i) < limite2) {
@@ -117,9 +133,8 @@ public class ThreadHumidade extends MedicaoThread {
 	}
 	
 	public boolean allAboveZona1Seguranca() {
-		double limite_humidade = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteHumidade"));
 		double zona_1_seguranca = Double.parseDouble(MainMongoToMySql.getMysqlProperty("Zona1Seguranca"))/100;
-		double limite1= limite_humidade - (limite_humidade * zona_1_seguranca);
+		double limite1= limiteHumidade - (limiteHumidade * zona_1_seguranca);
 		List<Double> medicoes = getMeasurements();
 		for(int i = medicoes.size() - 1; i > medicoes.size() - 4; i-- ) {
 			if(medicoes.get(i) < limite1) {
@@ -130,9 +145,8 @@ public class ThreadHumidade extends MedicaoThread {
 	}
 	
 	public boolean oneAboveZona1Seguranca() {
-		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteHumidade"));
-		double zona_1_seguranca = Double.parseDouble(MainMongoToMySql.getMysqlProperty("Zona1Seguranca"));
-		double limite1= limite_temperatura - (limite_temperatura * zona_1_seguranca / 100);
+		double zona_1_seguranca = Double.parseDouble(MainMongoToMySql.getMysqlProperty("Zona1Seguranca"))/100;
+		double limite1= limiteHumidade - (limiteHumidade * zona_1_seguranca);
 		List<Double> medicoes = getMeasurements();
 		for(int i = medicoes.size() - 1; i > medicoes.size() - 4; i-- ) {
 			if(medicoes.get(i) > limite1) {

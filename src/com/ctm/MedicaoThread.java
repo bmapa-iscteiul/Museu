@@ -138,7 +138,7 @@ public abstract class MedicaoThread extends Thread {
 			try {
 				sleep(sleepTime);
 				podeEnviarAlerta[index]=true;
-				System.out.println("Pode enviar alerta" + index);
+				System.out.println("Pode enviar alerta " + index);
 
 				if(index==0)
 					setNoValue(0);
