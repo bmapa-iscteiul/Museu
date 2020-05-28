@@ -21,6 +21,8 @@ public class SendToMysql extends Thread {
 	private Statement mySqlstatements;
 	private ShareResourceRegisto shareresource;
 	private static  int sleepTime=6000;
+	private static String emailMuseu = "email.museu.sid@gmail.com";
+	private static String passwordEmailMuseu = "passwordmuseu123";
 	
 	public SendToMysql(ShareResourceRegisto sh) {
 			this.shareresource=sh;
@@ -82,9 +84,9 @@ public class SendToMysql extends Thread {
 		}catch (Exception e){
 		System.out.println("Error quering  the database . Now sending emails. " + e);
 			for(Alerta a: alertas) {
-				String to =MainMongoToMySql.getMysqlProperty("emergencyEmail");
-				String subject = a.getDescricao();
-				String text = a.getDataHora()+"','"+a.getTipoSensor()+"','"+a.getValor()+"','"+a.getLimit()+"','"+a.getDescricao()+"','"+a.getControlo();
+				String to = MainMongoToMySql.getMysqlProperty("emergencyEmail");
+				String subject = "Alerta:" + a.getDescricao() + " " + a.getDataHora();
+				String text = "Hora:" + a.getDataHora()+"\nTipo Sensor: "+a.getTipoSensor()+"\nValores: "+a.getValor()+"\nLimite: "+a.getLimit()+"\nDescrição: "+a.getDescricao()+"\nControlo: "+a.getControlo();
 				sendEmail(to, subject, text);
 			}
 		}
@@ -100,11 +102,19 @@ public class SendToMysql extends Thread {
 	}
 	
 	public void sendEmail(String to, String subject, String text) {
-	     String from = "bruno-porto@live.com.pt";
-	     String host = "localhost";
+	     String from = emailMuseu;
+	     String host = "smtp.gmail.com";
 	     Properties properties = System.getProperties();
+	     properties.put("mail.smtp.auth", "true");
+	     properties.put("mail.smtp.starttls.enable", "true");
 	     properties.setProperty("mail.smtp.host", host);
-	     Session session = Session.getDefaultInstance(properties);
+	     
+	     Session session = Session.getInstance(properties, new Authenticator() {
+	 		@Override
+	 		protected PasswordAuthentication getPasswordAuthentication() {
+	 			return new PasswordAuthentication(emailMuseu, passwordEmailMuseu);
+	 		}
+	 	});
 
 	     try {
 	         MimeMessage message = new MimeMessage(session);
