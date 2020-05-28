@@ -115,6 +115,7 @@ public class SendToMysql extends Thread {
 	 			return new PasswordAuthentication(emailMuseu, passwordEmailMuseu);
 	 		}
 	 	});
+	     session.getProperties().put("mail.smtp.ssl.trust", "smtp.gmail.com");
 
 	     try {
 	         MimeMessage message = new MimeMessage(session);
