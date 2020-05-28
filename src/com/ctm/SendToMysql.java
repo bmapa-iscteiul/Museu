@@ -85,8 +85,8 @@ public class SendToMysql extends Thread {
 		System.out.println("Error quering  the database . Now sending emails. " + e);
 			for(Alerta a: alertas) {
 				String to = MainMongoToMySql.getMysqlProperty("emergencyEmail");
-				String subject = "Alerta:" + a.getDescricao() + " " + a.getDataHora();
-				String text = "Hora:" + a.getDataHora()+"\nTipo Sensor: "+a.getTipoSensor()+"\nValores: "+a.getValor()+"\nLimite: "+a.getLimit()+"\nDescrição: "+a.getDescricao()+"\nControlo: "+a.getControlo();
+				String subject = "Alerta: " + a.getDescricao() + " " + a.getDataHora();
+				String text = "Hora: " + a.getDataHora()+"\nTipo Sensor: "+a.getTipoSensor()+"\nValores: "+a.getValor()+"\nLimite: "+a.getLimit()+"\nDescrição: "+a.getDescricao()+"\nControlo: "+a.getControlo();
 				sendEmail(to, subject, text);
 			}
 		}
