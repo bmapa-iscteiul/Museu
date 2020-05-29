@@ -96,8 +96,8 @@ public class SendToMysql extends Thread {
 	private void sendMedicoes(List<MedicaoSensor> medicoes) {
 		try{
 			for(MedicaoSensor med:medicoes) {
-				String SqlCommando = "Insert into medicoessensores ( ValorMedicao, TipoSensor,DataHoraMedicao" + 
-					") values ("+med.getValorMedicao()+",'"+med.getTipoSensor()+"','"+med.getDataHoraMedicao()+"');";
+				String SqlCommando = "Insert into medicoessensores ( ValorMedicao, TipoSensor,DataHoraMedicao, TipoMedicao" + 
+					") values ("+med.getValorMedicao()+",'"+med.getTipoSensor()+"','"+med.getDataHoraMedicao()+"','"+med.getTipoMedicao()+"');";
 				mySqlstatements.executeUpdate(SqlCommando);
 			}
 		}catch (Exception e)
@@ -125,7 +125,7 @@ public class SendToMysql extends Thread {
 				}
 				String to = MainMongoToMySql.getMysqlProperty("emergencyEmail");
 				String subject = "Alerta: " + a.getDescricao() + " " + a.getDataHora();
-				String text = "Hora: " + a.getDataHora()+"\nTipo Sensor: "+a.getTipoSensor()+"\nValores: "+a.getValor()+"\nLimite: "+a.getLimit()+"\nDescrição: "+a.getDescricao()+"\nControlo: "+a.getControlo();
+				String text = "Hora: " + a.getDataHora()+"\nTipo Sensor: "+a.getTipoSensor()+"\nValores: "+a.getValor()+"\nLimite: "+a.getLimit()+"\nDescriï¿½ï¿½o: "+a.getDescricao()+"\nControlo: "+a.getControlo();
 				sendEmail(to, subject, text);
 			}
 		}
