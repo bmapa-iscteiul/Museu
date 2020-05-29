@@ -81,6 +81,7 @@ public class ThreadTemperatura extends MedicaoThread {
 		if(allAboveZona1Seguranca() && oneAboveLimite() && podeEnviarAlerta1(3)) {
 			Alerta alerta = makeAlerta("Incendio", medicao, medicoes);
 			setPodeEnviarAlerta(3,false);
+			setPodeEnviarAlerta(2,false);
 			alerta.setIndex(3);
 			return alerta;
 		}else if(allAboveZona2Seguranca() && oneAboveZona1Seguranca() && podeEnviarAlerta1(2)) {

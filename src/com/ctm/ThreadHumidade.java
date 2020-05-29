@@ -76,6 +76,7 @@ public class ThreadHumidade extends MedicaoThread {
 		if(allAboveZona1Seguranca() && oneAboveLimite() && podeEnviarAlerta1(3)) {
 			Alerta alerta = makeAlerta("Humidade ultrapassou limite!", medicao, medicoes);
 			setPodeEnviarAlerta(3,false);
+			setPodeEnviarAlerta(2,false);
 			alerta.setIndex(3);
 			return alerta;
 		}else if(allAboveZona2Seguranca() && oneAboveZona1Seguranca() && podeEnviarAlerta1(2)) {
