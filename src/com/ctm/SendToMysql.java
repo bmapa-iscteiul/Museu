@@ -1,22 +1,55 @@
 package com.ctm;
 
 import java.io.FileInputStream;
-import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
-import javax.activation.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.temporal.ChronoField;
+import java.util.Date;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
+import org.eclipse.paho.client.mqttv3.MqttClient;
+
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+
 public class SendToMysql extends Thread {
 	
+	enum dayOfWeek {DOM,SEG,TER,QUA,QUI,SEX,SAB}
+	
+	//mongo em caso de mysql down
+	MqttClient mqttclient;
+    static MongoClient mongoClient;
+    static DB db;
+    static DBCollection mongocol_rondaplaneada;
+    static String cloud_server = new String();
+    static String cloud_topic = new String();
+    static String mongo_host = new String();
+    static String mongo_database = new String();
+    static String mongo_collection_rondaplaneada = new String();
+    static Properties CloudToMongoIni = new Properties();
+    
+    //mysql
 	private Connection mySqlConnection;
 	private Statement mySqlstatements;
 	private ShareResourceRegisto shareresource;
@@ -29,6 +62,7 @@ public class SendToMysql extends Thread {
 	}
 	
 	private void connectToMysql() {
+		System.out.println(LocalTime.now().toString());
 		String database_password = MainMongoToMySql.getMysqlProperty("database_password");
 		String database_user = MainMongoToMySql.getMysqlProperty("database_user");
 		String database_connection = MainMongoToMySql.getMysqlProperty("mysql_host");
@@ -82,15 +116,17 @@ public class SendToMysql extends Thread {
 				mySqlstatements.executeUpdate(SqlCommando);
 			}
 		}catch (Exception e){
-			System.out.println("Error quering  the database ."+ e);
-			if(!e.getMessage().equals("ronda")) {
-				System.out.println("Now sending emails. " );
-				for(Alerta a: alertas) {
-					String to = MainMongoToMySql.getMysqlProperty("emergencyEmail");
-					String subject = "Alerta: " + a.getDescricao() + " " + a.getDataHora();
-					String text = "Hora: " + a.getDataHora()+"\nTipo Sensor: "+a.getTipoSensor()+"\nValores: "+a.getValor()+"\nLimite: "+a.getLimit()+"\nDescrição: "+a.getDescricao()+"\nControlo: "+a.getControlo();
-					sendEmail(to, subject, text);
+		System.out.println("Error quering  the database . Now sending emails. " + e);
+			for(Alerta a: alertas) {
+				if(a.getTipoSensor() == "mov" || a.getTipoSensor() == "cell") {
+					if(isOnRondaPlaneada(a)) {
+						continue;
+					}
 				}
+				String to = MainMongoToMySql.getMysqlProperty("emergencyEmail");
+				String subject = "Alerta: " + a.getDescricao() + " " + a.getDataHora();
+				String text = "Hora: " + a.getDataHora()+"\nTipo Sensor: "+a.getTipoSensor()+"\nValores: "+a.getValor()+"\nLimite: "+a.getLimit()+"\nDescrição: "+a.getDescricao()+"\nControlo: "+a.getControlo();
+				sendEmail(to, subject, text);
 			}
 		}
 	}
@@ -129,12 +165,66 @@ public class SendToMysql extends Thread {
 	         message.setText(text);
 
 	         Transport.send(message);
-	         System.out.println("Sent message successfully....");
+	         System.out.println("Sent email successfully....");
 	      } catch (MessagingException mex) {
 	         mex.printStackTrace();
 	      }
 	     
 	}
 	
-
+	public boolean isOnRondaPlaneada(Alerta alerta) {
+		connectMongo();
+		DBCursor rondaplaneada = mongocol_rondaplaneada.find();
+		while(rondaplaneada.hasNext()) {
+			int weekDayAlerta = getWeekDay();
+			int weekDayRonda = dayOfWeek.valueOf(rondaplaneada.next().get("DiaSemana").toString()).ordinal() + 1;
+			System.out.println(weekDayAlerta + " " + weekDayRonda);
+			if(weekDayAlerta == weekDayRonda) {
+				LocalTime rondaStart = LocalTime.parse(rondaplaneada.curr().get("HoraRonda").toString());
+				LocalTime rondaDuration = LocalTime.parse(rondaplaneada.curr().get("Duracao").toString());
+				long durationHour = rondaDuration.getLong(ChronoField.HOUR_OF_DAY);
+				long durationMinutes = rondaDuration.getLong(ChronoField.MINUTE_OF_HOUR);
+				LocalTime rondaEnd =  rondaStart.plusHours(durationHour);
+				rondaEnd = rondaEnd.plusMinutes(durationMinutes);
+				LocalTime now = LocalTime.now();
+				System.out.println(now.toString() + " " + rondaStart.toString());
+				if(now.isAfter(rondaStart) && now.isBefore(rondaEnd)) {
+					
+					System.out.println("Foi encontrada uma ronda na hora do alerta, FALSO ALARME");
+					return true;
+				}
+			
+			}
+		}
+		return false;
+	} 
+	
+	public void connectMongo() {
+		loadMongoIni();
+		cloud_server = CloudToMongoIni.getProperty("cloud_server");
+        cloud_topic = CloudToMongoIni.getProperty("cloud_topic");
+        mongo_host = CloudToMongoIni.getProperty("mongo_host");
+        mongo_database = CloudToMongoIni.getProperty("mongo_database");
+        mongo_collection_rondaplaneada = "rondaplaneada";
+        
+		mongoClient = new MongoClient(new MongoClientURI(mongo_host));
+		db = mongoClient.getDB(mongo_database);
+		mongocol_rondaplaneada = db.getCollection(mongo_collection_rondaplaneada);
+	}
+	
+	public void loadMongoIni() {
+		 try {
+				CloudToMongoIni.load(new FileInputStream("CloudToMongo.ini"));
+			} catch (FileNotFoundException  e) { e.printStackTrace();
+			} catch (IOException e2) { e2.printStackTrace(); }
+	}
+	
+	public int getWeekDay() {
+		Date actualDate = new Date(); 
+		Calendar c = Calendar.getInstance();
+		c.setTime(actualDate);
+		int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
+		return dayOfWeek;
+	}
 }
+
