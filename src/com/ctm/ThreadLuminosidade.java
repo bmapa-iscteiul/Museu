@@ -68,7 +68,7 @@ public class ThreadLuminosidade extends MedicaoThread {
 		List<Double> medicoes = getMeasurements();
 		//for(int i = 0; i < medicoes.size(); i++ ) {
 			//if(medicoes.get(i) > limiteLuminosidade) {
-		if(medicao.getValorMedicao()>limiteLuminosidade) {
+		if(medicao.getValorMedicao()>=limiteLuminosidade) {
 			Alerta alerta = makeAlerta("Luz detetada!", medicao);
 			setPodeEnviarAlerta(2,false);
 			alerta.setIndex(2);
