@@ -157,7 +157,7 @@ public class ThreadTemperatura extends MedicaoThread {
 		double limite_temperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteTemperatura"));
 		List<Double> medicoes = getMeasurements();
 		for(int i = medicoes.size() - 1; i > medicoes.size() - 4; i-- ) {
-			if(medicoes.get(i) > limite_temperatura) {
+			if(medicoes.get(i) >= limite_temperatura) {
 				return true;
 			}
 		}

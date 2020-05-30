@@ -30,13 +30,16 @@ public class MedicaoSensor {
 		return dataHoraMedicao;
 	}
 	public void setControlo() {
-		if(valorMedicao >= limiteTemperatura) {
-			controlo = 2;
-		} else if(valorMedicao > limite2) {
-			controlo = 1;
-		} else {
-			controlo = 0;
+		if(tipoSensor.equals("tmp")) {
+			if(valorMedicao >= limiteTemperatura) {
+				controlo = 2;
+			} else if(valorMedicao > limite2) {
+				controlo = 1;
+			} else {
+				controlo = 0;
+			}
 		}
+		
 	}
 	public int getControlo() {
 		return controlo;
