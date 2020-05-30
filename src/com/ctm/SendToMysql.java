@@ -96,8 +96,8 @@ public class SendToMysql extends Thread {
 	private void sendMedicoes(List<MedicaoSensor> medicoes) {
 		try{
 			for(MedicaoSensor med:medicoes) {
-				String SqlCommando = "Insert into medicoessensores ( ValorMedicao, TipoSensor,DataHoraMedicao, TipoMedicao" + 
-					") values ("+med.getValorMedicao()+",'"+med.getTipoSensor()+"','"+med.getDataHoraMedicao()+"','"+med.getTipoMedicao()+"');";
+				String SqlCommando = "Insert into medicoessensores ( ValorMedicao, TipoSensor,DataHoraMedicao, Controlo" + 
+					") values ("+med.getValorMedicao()+",'"+med.getTipoSensor()+"','"+med.getDataHoraMedicao()+"','"+med.getControlo()+"');";
 				mySqlstatements.executeUpdate(SqlCommando);
 			}
 		}catch (Exception e)

@@ -4,7 +4,7 @@ public class MedicaoSensor {
 	private double valorMedicao;
 	private String tipoSensor;
 	private String dataHoraMedicao;
-	private int tipoMedicao;
+	private int controlo;
 	
 	private double limiteTemperatura = Double.parseDouble(MainMongoToMySql.getMysqlProperty("LimiteTemperatura"));
 	double zona_2_seguranca = Double.parseDouble(MainMongoToMySql.getMysqlProperty("Zona2Seguranca"))/100;
@@ -17,7 +17,7 @@ public class MedicaoSensor {
 		this.valorMedicao = valorMedicao;
 		this.tipoSensor = tipoSensor;
 		this.dataHoraMedicao = dataHoraMedicao;
-		setTipoMedicao();
+		setControlo();
 	}
 	
 	public double getValorMedicao() {
@@ -29,17 +29,17 @@ public class MedicaoSensor {
 	public String getDataHoraMedicao() {
 		return dataHoraMedicao;
 	}
-	public void setTipoMedicao() {
-		if(valorMedicao>=limiteTemperatura) {
-			tipoMedicao = 2;
-		} else if(valorMedicao>limite2) {
-			tipoMedicao = 1;
+	public void setControlo() {
+		if(valorMedicao >= limiteTemperatura) {
+			controlo = 2;
+		} else if(valorMedicao > limite2) {
+			controlo = 1;
 		} else {
-			tipoMedicao = 0;
+			controlo = 0;
 		}
 	}
-	public int getTipoMedicao() {
-		return tipoMedicao;
+	public int getControlo() {
+		return controlo;
 	}
 	
 	
