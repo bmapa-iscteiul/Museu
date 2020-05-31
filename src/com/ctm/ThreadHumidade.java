@@ -112,6 +112,7 @@ public class ThreadHumidade extends MedicaoThread {
 				|| descricao.equals("Humidade ultrapassou limite!")) {
 			valor = medicoes.get(medicoes.size()-1).toString()+"; "+medicoes.get(medicoes.size()-2).toString()+"; "+medicoes.get(medicoes.size()-3).toString();
 			dataHora = medicao.getDataHoraMedicao();
+			controlo=1;
 
 		}else {/*(descricao.equals("Sensor humidade em baixo!") || descricao.equals("Sensor humidade com problemas!"))*/
 			valor = "";

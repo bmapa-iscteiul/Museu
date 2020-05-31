@@ -106,6 +106,7 @@ public class ThreadTemperatura extends MedicaoThread {
 			|| descricao.equals("Incendio")) {
 			valor = medicoes.get(medicoes.size()-1).toString()+"; "+medicoes.get(medicoes.size()-2).toString()+"; "+medicoes.get(medicoes.size()-3).toString();
 			dataHora = medicao.getDataHoraMedicao();
+			controlo=1;
 			
 		}else {/*(descricao.equals("Sensor temperatura em baixo!") || descricao.equals("Sensor temperatura com problemas!"))*/
 			valor = "";

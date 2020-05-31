@@ -89,6 +89,7 @@ public class ThreadLuminosidade extends MedicaoThread {
 		if(descricao.equals("Luz detetada!")) {
 			valor = String.valueOf(medicao.getValorMedicao());
 			dataHora = medicao.getDataHoraMedicao();
+			controlo=1;
 
 		}else {/*(descricao.equals("Sensor luminosidade em baixo!") || descricao.equals("Sensor luminosidade com problemas!"))*/
 			valor = "";

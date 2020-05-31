@@ -89,6 +89,7 @@ public class ThreadMovimento extends MedicaoThread {
 		if(descricao.equals("Movimento detetado!")) {
 			dataHora = medicao.getDataHoraMedicao();
 			valor = "1";
+			controlo=1;
 
 		}else {/*(descricao.equals("Sensor movimento em baixo!") || descricao.equals("Sensor movimento com problemas!"))*/
 			valor = "";
