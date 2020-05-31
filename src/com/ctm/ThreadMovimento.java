@@ -94,6 +94,7 @@ public class ThreadMovimento extends MedicaoThread {
 		}else {/*(descricao.equals("Sensor movimento em baixo!") || descricao.equals("Sensor movimento com problemas!"))*/
 			valor = "";
 			dataHora = LocalDate.now().toString()+" "+LocalTime.now().toString().substring(0,8);
+			controlo=0;
 		}
 		Alerta alerta = new Alerta(dataHora, tipoSensor, valor, controlo, MOVIMENTO, descricao);
 		//System.out.println("Foi criado um alerta: "+descricao);

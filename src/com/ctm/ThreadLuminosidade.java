@@ -94,6 +94,7 @@ public class ThreadLuminosidade extends MedicaoThread {
 		}else {/*(descricao.equals("Sensor luminosidade em baixo!") || descricao.equals("Sensor luminosidade com problemas!"))*/
 			valor = "";
 			dataHora = LocalDate.now().toString()+" "+LocalTime.now().toString().substring(0,8);
+			controlo=0;
 		}
 		Alerta alerta = new Alerta(dataHora, tipoSensor, valor, controlo, limite, descricao);
 		//System.out.println("Foi criado um alerta: "+descricao);

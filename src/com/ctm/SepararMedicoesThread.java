@@ -38,7 +38,7 @@ public class SepararMedicoesThread extends Thread {
 		while(true) {
 			try {
 				sleep(sleepTime);
-				DBCursor medicoes = sensorCollection.find();//.sort(new BasicDBObject("tim",-1));
+				DBCursor medicoes = sensorCollection.find();
 				if(medicoes.size()!=0) {
 					shareResource.addMedicao(medicoes.toArray().get(medicoes.size()-1));
 				}

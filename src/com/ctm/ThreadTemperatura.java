@@ -106,11 +106,17 @@ public class ThreadTemperatura extends MedicaoThread {
 			|| descricao.equals("Incendio")) {
 			valor = medicoes.get(medicoes.size()-1).toString()+"; "+medicoes.get(medicoes.size()-2).toString()+"; "+medicoes.get(medicoes.size()-3).toString();
 			dataHora = medicao.getDataHoraMedicao();
-			controlo=1;
+			
+			if (descricao.equals("Temperatura a subir rapidamente!")){
+				controlo=0;
+			} else {
+				controlo=1;
+			}
 			
 		}else {/*(descricao.equals("Sensor temperatura em baixo!") || descricao.equals("Sensor temperatura com problemas!"))*/
 			valor = "";
 			dataHora = LocalDate.now().toString()+" "+LocalTime.now().toString().substring(0,8);
+			controlo = 0;
 		}
 		Alerta alerta = new Alerta(dataHora, tipoSensor, valor, controlo, limite, descricao);
 		//System.out.println("Foi criado um alerta: "+descricao);

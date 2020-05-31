@@ -55,7 +55,7 @@ public class CloudToMongo implements MqttCallback {
     static double TMP_MIN;
     static double CELL_MAX;
        
-    ArrayList<MedicaoSensor> medicoesSensorQueue = new ArrayList<MedicaoSensor>(); 
+    //ArrayList<MedicaoSensor> medicoesSensorQueue = new ArrayList<MedicaoSensor>(); 
 
     public static void main(String[] args) {
     	loadIni();
@@ -117,8 +117,8 @@ public class CloudToMongo implements MqttCallback {
 	@Override
     public void messageArrived(String topic, MqttMessage c) throws Exception {
         try {
-                DBObject message = (DBObject) JSON.parse(/*clean error25_05_2020*/(c.toString()));
-                DBObject original_msg =  (DBObject) JSON.parse(/*clean error25_05_2020*/(c.toString()));
+                DBObject message = (DBObject) JSON.parse(c.toString());
+                DBObject original_msg =  (DBObject) JSON.parse(c.toString());
                 
                 if(!correct_invalidChar(message).toString().equals(original_msg.toString())) {
                 		mongocol_invalidas.insert(original_msg);
