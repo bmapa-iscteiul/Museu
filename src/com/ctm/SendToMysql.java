@@ -123,7 +123,7 @@ public class SendToMysql extends Thread {
 						continue;
 					}
 				}
-				String to = MainMongoToMySql.getMysqlProperty("emergencyEmail");
+				String to = MainMongoToMySql.getMysqlProperty("EmailEmergencia");
 				String subject = "Alerta: " + a.getDescricao() + " " + a.getDataHora();
 				String text = "Hora: " + a.getDataHora()+"\nTipo Sensor: "+a.getTipoSensor()+"\nValores: "+a.getValor()+"\nLimite: "+a.getLimit()+"\nDescri��o: "+a.getDescricao()+"\nControlo: "+a.getControlo();
 				sendEmail(to, subject, text);
