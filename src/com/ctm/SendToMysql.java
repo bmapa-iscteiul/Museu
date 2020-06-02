@@ -155,7 +155,12 @@ public class SendToMysql extends Thread {
 				mySqlstatements.executeUpdate(SqlCommando);
 			}
 		}catch (Exception e){
-		System.out.println("Error quering  the database . Now sending emails. " /*+ e*/);
+
+		//System.out.println("Error quering  the database . Now sending emails. " /*+ e*/);
+
+		if(!e.getMessage().equals("ronda")) { // N�o retirar, o trigger que impede alertas de movimento e luminosidade envia o erro, da ronda, se tirar pode tentar enviar email pois vai pensar que o mysql est� em baixo
+		System.out.println("Error quering  the database . Now sending emails. " + e);
+
 			for(Alerta a: alertas) {
 				if(a.getTipoSensor() == "mov" || a.getTipoSensor() == "cell") {
 					if(isOnRondaPlaneada(a)) {
@@ -167,6 +172,7 @@ public class SendToMysql extends Thread {
 				String text = "Hora: " + a.getDataHora()+"\nTipo Sensor: "+a.getTipoSensor()+"\nValores: "+a.getValor()+"\nLimite: "+a.getLimit()+"\nDescricao: "+a.getDescricao()+"\nControlo: "+a.getControlo();
 				sendEmail(to, subject, text);
 			}
+		}
 		}
 	}
 	
