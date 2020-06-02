@@ -10,6 +10,7 @@ import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Calendar;
 import java.util.Date;
@@ -57,12 +58,19 @@ public class SendToMysql extends Thread {
 	private static String emailMuseu = "email.museu.sid@gmail.com";
 	private static String passwordEmailMuseu = "passwordmuseu123";
 	
+	//algoritmo
+	private boolean ativoRec=false;
+	private int tentativa=1;
+	private LocalTime tempoInicio;
+	private int proxTempo=1;
+	private boolean podeTentar=true;
+	
 	public SendToMysql(ShareResourceRegisto sh) {
 			this.shareresource=sh;
 	}
 	
 	private void connectToMysql() {
-		System.out.println(LocalTime.now().toString());
+		//System.out.println(LocalTime.now().toString());
 		String database_password = MainMongoToMySql.getMysqlProperty("database_password");
 		String database_user = MainMongoToMySql.getMysqlProperty("database_user");
 		String database_connection = MainMongoToMySql.getMysqlProperty("mysql_host");
@@ -71,9 +79,37 @@ public class SendToMysql extends Thread {
 			mySqlConnection =  DriverManager.getConnection(database_connection,database_user,database_password);
 			mySqlstatements = this.mySqlConnection.createStatement();
 		} catch (Exception e) {
-			System.out.println("Server down, unable to make the connection. ");
+			setAtivoRec(true);
+			//System.out.println("Server down, unable to make the connection. ");
+			if(ativoRec && podeTentar) {
+				System.out.println("Inicio Algoritmo");
+				tempoInicio = LocalTime.now();
+				podeTentar = false;
+			}
+			
 		}
 	} 
+	
+	public void setAtivoRec(boolean valor) {
+		ativoRec = valor;
+	}
+	public void tentarConectar() {
+		int reconexaoNum = Integer.parseInt(MainMongoToMySql.getMysqlProperty("TentativasReconeccaoMysql"));
+		if(tentativa <= reconexaoNum && (tempoInicio.until(LocalTime.now(), ChronoUnit.SECONDS)>proxTempo)) {
+			connectToMysql();
+			proxTempo = proxTempo*5;
+			System.out.println("Algoritmo Reconexao: tentativa "+tentativa);
+			tentativa++;
+		}if(tentativa == reconexaoNum) {
+			System.out.println("Falhou");
+			Alerta a = new Alerta(LocalTime.now().toString().substring(0,8)+" "+LocalDate.now().toString(), "", "", 1, 0.0, "Mysql em baixo!");
+			String to = MainMongoToMySql.getMysqlProperty("EmergencyEmail");
+			String subject = "Alerta: " + a.getDescricao() + " " + a.getDataHora();
+			String text = "Hora: " + a.getDataHora()+"\nDescricao: "+a.getDescricao();
+			sendEmail(to, subject, text);
+		}
+	}
+	
 	
 	public void run() {
 		connectToMysql();
@@ -84,6 +120,9 @@ public class SendToMysql extends Thread {
 				sleep(sleepTime);
 				List<MedicaoSensor> medicoes = shareresource.getMedicoes();
 				sendMedicoes(medicoes);
+				if(ativoRec) {
+					tentarConectar();
+				}
 			} catch (InterruptedException e) {
 				//alerta
 				List<Alerta> alertas = shareresource.getAlertas();
@@ -102,7 +141,7 @@ public class SendToMysql extends Thread {
 			}
 		}catch (Exception e)
 		{
-		System.out.println("Error quering  the database . " + e);
+		//System.out.println("Error quering  the database . " + e);
 		//enviar email
 		}
 	}
@@ -116,16 +155,16 @@ public class SendToMysql extends Thread {
 				mySqlstatements.executeUpdate(SqlCommando);
 			}
 		}catch (Exception e){
-		System.out.println("Error quering  the database . Now sending emails. " + e);
+		System.out.println("Error quering  the database . Now sending emails. " /*+ e*/);
 			for(Alerta a: alertas) {
 				if(a.getTipoSensor() == "mov" || a.getTipoSensor() == "cell") {
 					if(isOnRondaPlaneada(a)) {
 						continue;
 					}
 				}
-				String to = MainMongoToMySql.getMysqlProperty("EmailEmergencia");
+				String to = MainMongoToMySql.getMysqlProperty("EmergencyEmail");
 				String subject = "Alerta: " + a.getDescricao() + " " + a.getDataHora();
-				String text = "Hora: " + a.getDataHora()+"\nTipo Sensor: "+a.getTipoSensor()+"\nValores: "+a.getValor()+"\nLimite: "+a.getLimit()+"\nDescri��o: "+a.getDescricao()+"\nControlo: "+a.getControlo();
+				String text = "Hora: " + a.getDataHora()+"\nTipo Sensor: "+a.getTipoSensor()+"\nValores: "+a.getValor()+"\nLimite: "+a.getLimit()+"\nDescricao: "+a.getDescricao()+"\nControlo: "+a.getControlo();
 				sendEmail(to, subject, text);
 			}
 		}
