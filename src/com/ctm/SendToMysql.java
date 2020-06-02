@@ -116,6 +116,7 @@ public class SendToMysql extends Thread {
 				mySqlstatements.executeUpdate(SqlCommando);
 			}
 		}catch (Exception e){
+			if(!e.getMessage().equals("ronda")) { // Não retirar, o trigger que impede alertas de movimento e luminosidade envia o erro, da ronda, se tirar pode tentar enviar email pois vai pensar que o mysql está em baixo
 		System.out.println("Error quering  the database . Now sending emails. " + e);
 			for(Alerta a: alertas) {
 				if(a.getTipoSensor() == "mov" || a.getTipoSensor() == "cell") {
@@ -128,6 +129,7 @@ public class SendToMysql extends Thread {
 				String text = "Hora: " + a.getDataHora()+"\nTipo Sensor: "+a.getTipoSensor()+"\nValores: "+a.getValor()+"\nLimite: "+a.getLimit()+"\nDescriï¿½ï¿½o: "+a.getDescricao()+"\nControlo: "+a.getControlo();
 				sendEmail(to, subject, text);
 			}
+		}
 		}
 	}
 	
