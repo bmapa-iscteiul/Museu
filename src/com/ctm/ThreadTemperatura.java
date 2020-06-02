@@ -104,7 +104,7 @@ public class ThreadTemperatura extends MedicaoThread {
 		
 		if(descricao.equals("Temperatura a subir rapidamente!")
 			|| descricao.equals("Incendio")) {
-			valor = medicoes.get(medicoes.size()-1).toString()+"; "+medicoes.get(medicoes.size()-2).toString()+"; "+medicoes.get(medicoes.size()-3).toString();
+			valor = medicoes.get(medicoes.size()-3).toString()+"; "+medicoes.get(medicoes.size()-2).toString()+"; "+medicoes.get(medicoes.size()-1).toString();
 			dataHora = medicao.getDataHoraMedicao();
 			
 			if (descricao.equals("Temperatura a subir rapidamente!")){
