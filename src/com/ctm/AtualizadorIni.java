@@ -31,7 +31,7 @@ public class AtualizadorIni {
 	
 	private static ArrayList<JTextField> textFields = new ArrayList<>();
 	private static String[] not_parameterizaveis = {"database_user", "database_password", "cloud_server", "mysql_host", "cloud_topic","mongo_collection_invalidas","mongo_collection_sensor","mongo_database",
-	"mongo_host","cloud_server","cloud_topic"};
+	"mongo_host","cloud_server","cloud_topic", "atualizador_user", "atualizador_pass"};
 	
 	static JFrame f=new JFrame();
 	
@@ -87,8 +87,8 @@ public class AtualizadorIni {
 	
 	private static void connectToMysql() {
 		System.out.println(LocalTime.now().toString());
-		String database_password = MainMongoToMySql.getMysqlProperty("database_password");
-		String database_user = MainMongoToMySql.getMysqlProperty("database_user");
+		String database_password = MainMongoToMySql.getMysqlProperty("atualizador_pass");
+		String database_user = MainMongoToMySql.getMysqlProperty("atualizador_user");
 		String database_connection = MainMongoToMySql.getMysqlProperty("mysql_host");
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
